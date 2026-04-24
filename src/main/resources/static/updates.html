@@ -26,6 +26,45 @@
 			color: #475569;
 			margin-bottom: 1rem;
 		}
+		.toolbar {
+			display: flex;
+			gap: 0.8rem;
+			align-items: center;
+			margin-bottom: 1rem;
+			flex-wrap: wrap;
+		}
+		button {
+			background: #2563eb;
+			color: white;
+			border: 0;
+			padding: 0.55rem 0.9rem;
+			border-radius: 8px;
+			cursor: pointer;
+			font: inherit;
+			font-weight: 600;
+		}
+		button:disabled {
+			opacity: 0.7;
+			cursor: wait;
+		}
+		.badge {
+			padding: 0.35rem 0.6rem;
+			border-radius: 999px;
+			font-size: 0.85rem;
+			font-weight: 600;
+		}
+		.badge.ok {
+			background: #dcfce7;
+			color: #166534;
+		}
+		.badge.down {
+			background: #fee2e2;
+			color: #991b1b;
+		}
+		.badge.unknown {
+			background: #e2e8f0;
+			color: #334155;
+		}
 		.grid {
 			display: grid;
 			gap: 1rem;
@@ -55,6 +94,10 @@
 <body>
 <main>
 	<h1>Tech Pulse</h1>
+	<div class="toolbar">
+		<button id="refreshBtn" type="button">Refresh now</button>
+		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
+	</div>
 	<p id="meta">Loading latest updates...</p>
 	<div id="list" class="grid"></div>
 </main>
@@ -62,6 +105,8 @@
 <script>
 	const list = document.getElementById('list');
 	const meta = document.getElementById('meta');
+	const refreshBtn = document.getElementById('refreshBtn');
+	const sourceBadge = document.getElementById('sourceBadge');
 
 	async function loadUpdates() {
 		try {
@@ -90,7 +135,39 @@
 		}
 	}
 
+	async function loadHealth() {
+		try {
+			const response = await fetch('/api/health/updates');
+			const health = await response.json();
+			if (health.source && health.source.available) {
+				sourceBadge.className = 'badge ok';
+				sourceBadge.textContent = 'Source: available';
+			} else {
+				sourceBadge.className = 'badge down';
+				sourceBadge.textContent = 'Source: unavailable';
+			}
+		} catch (error) {
+			sourceBadge.className = 'badge unknown';
+			sourceBadge.textContent = 'Source: unknown';
+		}
+	}
+
+	async function refreshNow() {
+		refreshBtn.disabled = true;
+		refreshBtn.textContent = 'Refreshing...';
+		try {
+			await fetch('/api/updates/refresh-all', { method: 'POST' });
+			await Promise.all([loadUpdates(), loadHealth()]);
+		} finally {
+			refreshBtn.disabled = false;
+			refreshBtn.textContent = 'Refresh now';
+		}
+	}
+
+	refreshBtn.addEventListener('click', refreshNow);
 	loadUpdates();
+	loadHealth();
+	setInterval(loadHealth, 30000);
 </script>
 </body>
 </html>

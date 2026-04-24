@@ -11,6 +11,7 @@ Small Spring Boot backend for `www.lin3.de` with a built-in contact form and a b
 - Manual refresh API at `POST /api/updates/refresh?limit=8`
 - Refresh common limits API at `POST /api/updates/refresh-all`
 - Updates health API at `GET /api/health/updates`
+- `updates.html` includes a "Refresh now" button and source status badge.
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)
 - Optional PostgreSQL persistence via `postgres` profile
