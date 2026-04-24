@@ -159,6 +159,16 @@
 			font-weight: 600;
 			color: #1e40af;
 		}
+		.item-footer {
+			margin-top: 0.35rem;
+			padding-top: 0.35rem;
+			font-size: 0.88rem;
+			color: #334155;
+			border-top: 1px dashed #cbd5e1;
+		}
+		.item-footer strong {
+			color: #0f172a;
+		}
 		a {
 			color: #2563eb;
 		}
@@ -171,7 +181,7 @@
 		<a href="/contact.html">Contact</a>
 	</nav>
 	<h1>Tech Pulse Briefing</h1>
-	<p class="subtitle">A focused daily view: 2 updates each for security, releases, and ecosystem signals.</p>
+	<p id="subtitle" class="subtitle">Building a live engineering briefing...</p>
 	<div class="toolbar">
 		<button id="refreshBtn" type="button">Refresh feed</button>
 		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
@@ -184,6 +194,7 @@
 	const refreshBtn = document.getElementById('refreshBtn');
 	const sourceBadge = document.getElementById('sourceBadge');
 	const meta = document.getElementById('meta');
+	const subtitle = document.getElementById('subtitle');
 	const list = document.getElementById('list');
 	const cardTypes = [
 		{ key: 'security', label: 'Security watch' },
@@ -258,6 +269,8 @@
 		try {
 			const response = await fetch('/api/updates?limit=16');
 			const data = await response.json();
+			const itemCount = Array.isArray(data.items) ? data.items.length : 0;
+			subtitle.textContent = `Live brief: ${itemCount} high-signal updates from ${data.source}. Showing up to 2 per category.`;
 			const freshness = data.fromCache
 				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
 				: 'freshly generated';
@@ -291,6 +304,7 @@
 							<span class="card-label ${section.type.key}">${section.type.label}</span>
 							<h3>No matching item</h3>
 							<p class="item-summary">A second update for this category is not available right now.</p>
+							<p class="item-footer"><strong>Why this matters:</strong> This lane has no additional item yet.</p>
 						`;
 						gridEl.appendChild(card);
 						continue;
@@ -302,6 +316,7 @@
 						<p class="item-meta">${escapeHtml(item.source)} • ${new Date(item.publishedAt).toLocaleString()}</p>
 						<p class="item-summary">${escapeHtml(item.summary)}</p>
 						<p class="item-action">${escapeHtml(item.action)}</p>
+						<p class="item-footer"><strong>Why this matters:</strong> ${escapeHtml(item.footerInsight || 'Check potential impact on your current priorities.')}</p>
 						<p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Read source</a></p>
 					`;
 					gridEl.appendChild(card);
@@ -311,6 +326,7 @@
 				list.appendChild(sectionEl);
 			}
 		} catch (error) {
+			subtitle.textContent = 'Live brief is temporarily unavailable. Retry to refresh the latest signals.';
 			meta.textContent = 'Could not load updates right now.';
 			list.innerHTML = '<article class="card"><h3>Temporarily unavailable</h3><p>Please try again in a moment.</p></article>';
 		}

@@ -60,6 +60,19 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		}
 	}
 
+	@Override
+	public String footerInsight(SourceUpdate update) {
+		if (!enabled) {
+			return fallback.footerInsight(update);
+		}
+		try {
+			String generated = generate(promptBuilder.buildFooterInsightPrompt(update));
+			return generated.isBlank() ? fallback.footerInsight(update) : generated;
+		} catch (Exception ex) {
+			return fallback.footerInsight(update);
+		}
+	}
+
 	private String generate(String prompt) {
 		Map<String, Object> request = Map.of(
 			"model", model,

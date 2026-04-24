@@ -47,7 +47,8 @@ class UpdatesControllerTest {
 				"Example",
 				Instant.parse("2026-04-24T09:00:00Z"),
 				"Short summary",
-				"Review changelog"
+				"Review changelog",
+				"Could require dependency updates in the next sprint."
 			)),
 			false,
 			null
@@ -59,7 +60,8 @@ class UpdatesControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("New release"))
-			.andExpect(jsonPath("$.items[0].action").value("Review changelog"));
+			.andExpect(jsonPath("$.items[0].action").value("Review changelog"))
+			.andExpect(jsonPath("$.items[0].footerInsight").value("Could require dependency updates in the next sprint."));
 	}
 
 	@Test
@@ -73,7 +75,8 @@ class UpdatesControllerTest {
 				"Example",
 				Instant.parse("2026-04-24T09:30:00Z"),
 				"Short summary",
-				"Patch production systems"
+				"Patch production systems",
+				"Production services may be exposed until patched."
 			)),
 			false,
 			null
@@ -85,7 +88,8 @@ class UpdatesControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("Security patch"))
-			.andExpect(jsonPath("$.items[0].action").value("Patch production systems"));
+			.andExpect(jsonPath("$.items[0].action").value("Patch production systems"))
+			.andExpect(jsonPath("$.items[0].footerInsight").value("Production services may be exposed until patched."));
 	}
 
 	@Test

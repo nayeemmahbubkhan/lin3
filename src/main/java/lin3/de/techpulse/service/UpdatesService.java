@@ -131,7 +131,8 @@ public class UpdatesService {
 				update.source(),
 				update.publishedAt(),
 				safeSummary(update),
-				safeAction(update)
+				safeAction(update),
+				safeFooterInsight(update)
 			))
 			.toList();
 
@@ -172,6 +173,15 @@ public class UpdatesService {
 			return "Review the source and decide if this affects your stack.";
 		}
 		return action.trim();
+	}
+
+	private String safeFooterInsight(SourceUpdate update) {
+		String insight = updatesSummarizer.footerInsight(update);
+		if (insight == null || insight.isBlank()) {
+			return "Scan this update quickly and confirm whether it changes near-term plans.";
+		}
+		String normalized = insight.trim();
+		return normalized.length() > 140 ? normalized.substring(0, 137) + "..." : normalized;
 	}
 
 	private boolean isHighSignal(SourceUpdate update) {

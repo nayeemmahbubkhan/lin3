@@ -33,6 +33,11 @@ class UpdatesServiceTest {
 			public String nextAction(SourceUpdate update) {
 				return "Action for " + update.title();
 			}
+
+			@Override
+			public String footerInsight(SourceUpdate update) {
+				return "Insight for " + update.title();
+			}
 		};
 
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
@@ -40,6 +45,7 @@ class UpdatesServiceTest {
 
 		assertEquals(1, response.items().size());
 		assertTrue(response.items().get(0).summary().startsWith("Summary for "));
+		assertTrue(response.items().get(0).footerInsight().startsWith("Insight for "));
 		assertFalse(response.fromCache());
 	}
 
@@ -59,6 +65,11 @@ class UpdatesServiceTest {
 			public String nextAction(SourceUpdate update) {
 				return "Action for " + update.title();
 			}
+
+			@Override
+			public String footerInsight(SourceUpdate update) {
+				return "Insight for " + update.title();
+			}
 		};
 
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
@@ -66,6 +77,7 @@ class UpdatesServiceTest {
 
 		assertEquals(1, response.items().size());
 		assertEquals("Summary for Release 2.0 launched", response.items().get(0).summary());
+		assertEquals("Insight for Release 2.0 launched", response.items().get(0).footerInsight());
 		assertFalse(response.fromCache());
 	}
 
@@ -117,6 +129,11 @@ class UpdatesServiceTest {
 			@Override
 			public String nextAction(SourceUpdate update) {
 				return "Action for " + update.title();
+			}
+
+			@Override
+			public String footerInsight(SourceUpdate update) {
+				return "Insight for " + update.title();
 			}
 		};
 	}

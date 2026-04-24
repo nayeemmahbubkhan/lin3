@@ -23,5 +23,13 @@ public class LocalLlmPromptBuilder {
 			+ "Source: " + update.source() + "\n"
 			+ "URL: " + update.url();
 	}
+
+	public String buildFooterInsightPrompt(SourceUpdate update) {
+		return "Write one short 'why this matters' sentence (max 18 words) for this update."
+			+ " Keep it practical for engineering decisions.\n"
+			+ "Title: " + update.title() + "\n"
+			+ "Source: " + update.source() + "\n"
+			+ "URL: " + update.url();
+	}
 }
 

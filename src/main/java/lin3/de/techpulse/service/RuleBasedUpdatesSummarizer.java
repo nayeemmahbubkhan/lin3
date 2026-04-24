@@ -32,5 +32,20 @@ public class RuleBasedUpdatesSummarizer implements UpdatesSummarizer {
 		}
 		return "Decide whether this impacts your stack, then assign an owner or ignore it.";
 	}
+
+	@Override
+	public String footerInsight(SourceUpdate update) {
+		String title = update.title().toLowerCase();
+		if (title.contains("security") || title.contains("vulnerability") || title.contains("cve")) {
+			return "Potential production risk; validate exposure and patch urgency.";
+		}
+		if (title.contains("release") || title.contains("launch")) {
+			return "May change dependencies or behavior in your next delivery cycle.";
+		}
+		if (title.contains("funding") || title.contains("acquisition")) {
+			return "Could shift vendor priorities and ecosystem direction soon.";
+		}
+		return "Useful signal to validate against current roadmap and platform priorities.";
+	}
 }
 

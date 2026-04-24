@@ -7,5 +7,7 @@ public interface UpdatesSummarizer {
 	String summarize(SourceUpdate update);
 
 	String nextAction(SourceUpdate update);
+
+	String footerInsight(SourceUpdate update);
 }
 

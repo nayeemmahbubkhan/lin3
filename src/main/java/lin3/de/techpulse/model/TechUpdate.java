@@ -8,7 +8,8 @@ public record TechUpdate(
 	String source,
 	Instant publishedAt,
 	String summary,
-	String action
+	String action,
+	String footerInsight
 ) {
 }
 
