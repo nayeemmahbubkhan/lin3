@@ -47,5 +47,6 @@ export TECHPULSE_DB_PASSWORD=techpulse
 
 - Default mode keeps messages in memory. Use `postgres` profile for persistence.
 - Legacy env vars `LIN3_DB_URL`, `LIN3_DB_USER`, and `LIN3_DB_PASSWORD` are still accepted as fallback.
+- Optional Ollama summarization can be enabled with `techpulse.llm.enabled=true`.
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
 

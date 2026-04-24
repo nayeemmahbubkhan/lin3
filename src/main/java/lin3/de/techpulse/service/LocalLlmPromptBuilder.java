@@ -7,7 +7,18 @@ import org.springframework.stereotype.Component;
 public class LocalLlmPromptBuilder {
 
 	public String buildPrompt(SourceUpdate update) {
+		return buildSummaryPrompt(update);
+	}
+
+	public String buildSummaryPrompt(SourceUpdate update) {
 		return "Summarize this tech update in 2 short sentences and suggest one concrete action.\n"
+			+ "Title: " + update.title() + "\n"
+			+ "Source: " + update.source() + "\n"
+			+ "URL: " + update.url();
+	}
+
+	public String buildActionPrompt(SourceUpdate update) {
+		return "Given this tech update, provide one concise next action for an engineering team.\n"
 			+ "Title: " + update.title() + "\n"
 			+ "Source: " + update.source() + "\n"
 			+ "URL: " + update.url();
