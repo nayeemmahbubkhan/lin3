@@ -32,7 +32,7 @@ public class RuleBasedUpdatesSummarizer implements UpdatesSummarizer {
 		if (title.contains("funding") || title.contains("acquisition")) {
 			return "Track market impact and competitor roadmap changes.";
 		}
-		return "Bookmark this update and evaluate relevance in your weekly review.";
+		return "Decide whether this impacts your stack, then assign an owner or ignore it.";
 	}
 }
 

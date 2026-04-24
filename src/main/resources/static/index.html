@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>lin3.de</title>
+	<title>Tech Pulse Home</title>
 	<style>
 		:root {
 			font-family: Arial, sans-serif;
@@ -12,106 +12,274 @@
 		}
 		body {
 			margin: 0;
+			padding: 2rem 1rem;
 			display: grid;
 			place-items: center;
-			min-height: 100vh;
 		}
 		main {
-			width: min(720px, 92vw);
+			width: min(900px, 96vw);
 			background: white;
 			padding: 2rem;
-			border-radius: 12px;
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+			border-radius: 14px;
+			box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
 		}
-		h1 { margin-top: 0; }
-		form {
-			display: grid;
+		.nav {
+			display: flex;
+			justify-content: flex-end;
 			gap: 0.8rem;
+			margin-bottom: 0.8rem;
 		}
-		label { font-weight: 600; }
-		input, textarea {
-			width: 100%;
-			padding: 0.7rem;
-			border: 1px solid #cbd5e1;
-			border-radius: 8px;
-			font: inherit;
+		.nav a {
+			text-decoration: none;
+			font-weight: 600;
+			color: #334155;
+		}
+		.nav a.active {
+			color: #1d4ed8;
+		}
+		h1 {
+			margin-top: 0;
+			margin-bottom: 0.4rem;
+		}
+		p {
+			margin-top: 0;
+		}
+		.toolbar {
+			display: flex;
+			gap: 0.7rem;
+			align-items: center;
+			flex-wrap: wrap;
+			margin-bottom: 1rem;
 		}
 		button {
-			background: #2563eb;
+			background: linear-gradient(135deg, #2563eb, #1d4ed8);
 			color: white;
 			border: 0;
-			padding: 0.7rem 1rem;
+			padding: 0.55rem 0.9rem;
 			border-radius: 8px;
 			cursor: pointer;
 			font: inherit;
 			font-weight: 600;
 		}
-		#status { min-height: 1.5rem; }
-		.hidden-trap {
-			position: absolute;
-			left: -9999px;
+		button:disabled {
+			opacity: 0.7;
+			cursor: wait;
+		}
+		.badge {
+			padding: 0.35rem 0.6rem;
+			border-radius: 999px;
+			font-size: 0.85rem;
+			font-weight: 600;
+		}
+		.badge.ok {
+			background: #dcfce7;
+			color: #166534;
+		}
+		.badge.down {
+			background: #fee2e2;
+			color: #991b1b;
+		}
+		.badge.unknown {
+			background: #e2e8f0;
+			color: #334155;
+		}
+		#meta {
+			color: #475569;
+			margin-bottom: 1rem;
+		}
+		.grid {
+			display: grid;
+			gap: 1rem;
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		}
+		.card {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			padding: 1rem;
+			border-radius: 12px;
+			border: 1px solid #e2e8f0;
+			box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+		}
+		.card.security { border-top: 4px solid #dc2626; }
+		.card.release { border-top: 4px solid #2563eb; }
+		.card.signal { border-top: 4px solid #7c3aed; }
+		.card-label {
+			display: inline-block;
+			font-size: 0.76rem;
+			font-weight: 700;
+			letter-spacing: 0.03em;
+			text-transform: uppercase;
+			margin-bottom: 0.5rem;
+			padding: 0.2rem 0.5rem;
+			border-radius: 999px;
+		}
+		.card-label.security { background: #fee2e2; color: #991b1b; }
+		.card-label.release { background: #dbeafe; color: #1e40af; }
+		.card-label.signal { background: #ede9fe; color: #5b21b6; }
+		.card h3 {
+			margin: 0 0 0.3rem;
+			font-size: 1.05rem;
+		}
+		.item-summary {
+			display: -webkit-box;
+			-webkit-line-clamp: 4;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+		.item-meta {
+			font-size: 0.9rem;
+			color: #64748b;
+		}
+		.item-action {
+			font-weight: 600;
+			color: #1e40af;
+		}
+		a {
+			color: #2563eb;
 		}
 	</style>
 </head>
 <body>
 <main>
-	<h1>Welcome to Tech Pulse</h1>
-	<p>Daily tech updates in plain language. Visit <a href="/updates.html">/updates.html</a> for the live feed.</p>
-
-	<form id="contactForm">
-		<div>
-			<label for="name">Name</label>
-			<input id="name" name="name" maxlength="100" required>
-		</div>
-		<div>
-			<label for="email">Email</label>
-			<input id="email" name="email" type="email" maxlength="255" required>
-		</div>
-		<div>
-			<label for="message">Message</label>
-			<textarea id="message" name="message" rows="6" maxlength="2000" required></textarea>
-		</div>
-
-		<!-- Honeypot spam field: humans should never fill this in. -->
-		<div class="hidden-trap" aria-hidden="true">
-			<label for="website">Website</label>
-			<input id="website" name="website" autocomplete="off" tabindex="-1">
-		</div>
-
-		<button type="submit">Send Message</button>
-		<p id="status"></p>
-	</form>
+	<nav class="nav" aria-label="Primary">
+		<a href="/" class="active">Home</a>
+		<a href="/contact.html">Contact</a>
+	</nav>
+	<h1>Tech Pulse Dashboard</h1>
+	<p>Track fresh engineering updates, verify source health, and trigger a refresh when needed.</p>
+	<div class="toolbar">
+		<button id="refreshBtn" type="button">Refresh now</button>
+		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
+	</div>
+	<p id="meta">Loading latest updates...</p>
+	<div id="list" class="grid"></div>
 </main>
 
 <script>
-	const form = document.getElementById('contactForm');
-	const statusEl = document.getElementById('status');
+	const refreshBtn = document.getElementById('refreshBtn');
+	const sourceBadge = document.getElementById('sourceBadge');
+	const meta = document.getElementById('meta');
+	const list = document.getElementById('list');
+	const cardTypes = [
+		{ key: 'security', label: 'Security watch' },
+		{ key: 'release', label: 'Release impact' },
+		{ key: 'signal', label: 'Ecosystem signal' }
+	];
 
-	form.addEventListener('submit', async (event) => {
-		event.preventDefault();
-		statusEl.textContent = 'Sending...';
+	function escapeHtml(input) {
+		return String(input ?? '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/\"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
 
-		const payload = {
-			name: form.name.value,
-			email: form.email.value,
-			message: form.message.value,
-			website: form.website.value
-		};
-
-		const response = await fetch('/api/contact', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload)
-		});
-
-		const body = await response.json();
-		if (response.ok) {
-			statusEl.textContent = 'Thanks, your message was sent. Reference: ' + body.reference;
-			form.reset();
-		} else {
-			statusEl.textContent = body.message || 'Could not send message.';
+	function detectType(item) {
+		const text = `${item.title || ''} ${item.summary || ''} ${item.action || ''} ${item.url || ''}`.toLowerCase();
+		if (/(security|cve|vulnerability|patch)/.test(text)) {
+			return 'security';
 		}
-	});
+		if (/(release|launch|version|changelog|ga\b)/.test(text)) {
+			return 'release';
+		}
+		return 'signal';
+	}
+
+	function chooseFocusedItems(items) {
+		const used = new Set();
+		const typed = items.map(item => ({ item, detected: detectType(item) }));
+		return cardTypes.map(type => {
+			let match = typed.find(entry => entry.detected === type.key && !used.has(entry.item.url));
+			if (!match) {
+				match = typed.find(entry => !used.has(entry.item.url));
+			}
+			if (!match) {
+				return { type, item: null };
+			}
+			used.add(match.item.url);
+			return { type, item: match.item };
+		});
+	}
+
+	async function loadUpdates() {
+		try {
+			const response = await fetch('/api/updates?limit=10');
+			const data = await response.json();
+			const freshness = data.fromCache
+				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
+				: 'freshly generated';
+			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString() + ' | ' + freshness;
+			list.innerHTML = '';
+
+			if (!data.items || data.items.length === 0) {
+				list.innerHTML = '<article class="card"><h3>No updates yet</h3><p>Try refreshing in a moment.</p></article>';
+				return;
+			}
+
+			const focused = chooseFocusedItems(data.items);
+			for (const entry of focused) {
+				const card = document.createElement('article');
+				card.className = `card ${entry.type.key}`;
+				if (!entry.item) {
+					card.innerHTML = `
+						<span class="card-label ${entry.type.key}">${entry.type.label}</span>
+						<h3>No matching item</h3>
+						<p class="item-summary">A focused update for this category is not available right now.</p>
+					`;
+					list.appendChild(card);
+					continue;
+				}
+
+				const item = entry.item;
+				card.innerHTML = `
+					<span class="card-label ${entry.type.key}">${entry.type.label}</span>
+					<h3>${escapeHtml(item.title)}</h3>
+					<p class="item-meta">${escapeHtml(item.source)} • ${new Date(item.publishedAt).toLocaleString()}</p>
+					<p class="item-summary">${escapeHtml(item.summary)}</p>
+					<p class="item-action">${escapeHtml(item.action)}</p>
+					<p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Read source</a></p>
+				`;
+				list.appendChild(card);
+			}
+		} catch (error) {
+			meta.textContent = 'Could not load updates right now.';
+			list.innerHTML = '<article class="card"><h3>Temporarily unavailable</h3><p>Please try again in a moment.</p></article>';
+		}
+	}
+
+	async function loadHealth() {
+		try {
+			const response = await fetch('/api/health/updates');
+			const health = await response.json();
+			if (health.source && health.source.available) {
+				sourceBadge.className = 'badge ok';
+				sourceBadge.textContent = 'Source: available';
+			} else {
+				sourceBadge.className = 'badge down';
+				sourceBadge.textContent = 'Source: unavailable';
+			}
+		} catch (error) {
+			sourceBadge.className = 'badge unknown';
+			sourceBadge.textContent = 'Source: unknown';
+		}
+	}
+
+	async function refreshNow() {
+		refreshBtn.disabled = true;
+		refreshBtn.textContent = 'Refreshing...';
+		try {
+			await fetch('/api/updates/refresh-all', { method: 'POST' });
+			await Promise.all([loadUpdates(), loadHealth()]);
+		} finally {
+			refreshBtn.disabled = false;
+			refreshBtn.textContent = 'Refresh now';
+		}
+	}
+
+	refreshBtn.addEventListener('click', refreshNow);
+	loadUpdates();
+	loadHealth();
+	setInterval(loadHealth, 30000);
 </script>
 </body>
 </html>

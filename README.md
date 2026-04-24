@@ -1,17 +1,17 @@
 # Tech Pulse starter backend
 
-Small Spring Boot backend for `www.lin3.de` with a built-in contact form and a base for a future tech insight feed.
+Small Spring Boot backend for `www.lin3.de` with a homepage dashboard, a simple contact page, and a tech insight feed.
 
 ## Features
 
 - Public landing page at `/`
-- Public tech updates page at `/updates.html`
+- Public contact page at `/contact.html`
 - Contact API at `POST /api/contact`
 - Tech updates API at `GET /api/updates?limit=8`
 - Manual refresh API at `POST /api/updates/refresh?limit=8`
 - Refresh common limits API at `POST /api/updates/refresh-all`
 - Updates health API at `GET /api/health/updates`
-- `updates.html` includes a "Refresh now" button and source status badge.
+- Homepage (`/`) includes refresh controls, latest updates, and source health status.
 - Feed ingests multiple sources (Hacker News + GitHub Releases RSS).
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Contact | Tech Pulse</title>
+	<style>
+		:root {
+			font-family: Arial, sans-serif;
+			color: #111827;
+			background: #f8fafc;
+		}
+		body {
+			margin: 0;
+			padding: 2rem 1rem;
+			display: grid;
+			place-items: center;
+		}
+		main {
+			width: min(680px, 94vw);
+			background: white;
+			padding: 2rem;
+			border-radius: 14px;
+			box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
+		}
+		.nav {
+			display: flex;
+			justify-content: flex-end;
+			gap: 0.8rem;
+			margin-bottom: 1rem;
+		}
+		.nav a {
+			text-decoration: none;
+			font-weight: 600;
+			color: #334155;
+		}
+		.nav a.active {
+			color: #1d4ed8;
+		}
+		h1 {
+			margin: 0 0 0.5rem;
+		}
+		p {
+			color: #475569;
+			line-height: 1.5;
+		}
+		.card {
+			margin-top: 1rem;
+			padding: 1rem;
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border: 1px solid #e2e8f0;
+			border-radius: 12px;
+		}
+		.email {
+			font-size: 1.05rem;
+			font-weight: 600;
+			color: #1d4ed8;
+			text-decoration: none;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<nav class="nav" aria-label="Primary">
+		<a href="/">Home</a>
+		<a href="/contact.html" class="active">Contact</a>
+	</nav>
+
+	<h1>Contact</h1>
+	<p>If you want to discuss the project, share feedback, or suggest a feature, feel free to reach out directly.</p>
+	<div class="card">
+		<a class="email" href="mailto:nayeem.khan@hotmail.com">nayeem.khan@hotmail.com</a>
+	</div>
+</main>
+</body>
+</html>
+
