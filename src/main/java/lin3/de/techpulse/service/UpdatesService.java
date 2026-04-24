@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -32,6 +33,7 @@ public class UpdatesService {
 	private final Duration cacheTtl;
 	private final boolean qualityEnabled;
 	private final List<String> qualityKeywords;
+	private final Map<String, Double> sourceWeights;
 	private final ConcurrentMap<Integer, CacheEntry> cacheByLimit = new ConcurrentHashMap<>();
 
 	public UpdatesService(TechUpdatesSource techUpdatesSource,
@@ -40,7 +42,8 @@ public class UpdatesService {
 		@Value("${techpulse.updates.cache.enabled:true}") boolean cacheEnabled,
 		@Value("${techpulse.updates.cache-ttl-seconds:300}") long cacheTtlSeconds,
 		@Value("${techpulse.updates.quality.enabled:true}") boolean qualityEnabled,
-		@Value("${techpulse.updates.quality.keywords:security,release,ai,open-source,cloud,database}") String qualityKeywordsRaw) {
+		@Value("${techpulse.updates.quality.keywords:security,release,ai,open-source,cloud,database}") String qualityKeywordsRaw,
+		@Value("${techpulse.updates.source-weights:}") String sourceWeightsRaw) {
 		this.techUpdatesSource = techUpdatesSource;
 		this.updatesSummarizer = updatesSummarizer;
 		this.defaultLimit = defaultLimit;
@@ -48,6 +51,7 @@ public class UpdatesService {
 		this.cacheTtl = Duration.ofSeconds(Math.max(0, cacheTtlSeconds));
 		this.qualityEnabled = qualityEnabled;
 		this.qualityKeywords = parseKeywords(qualityKeywordsRaw);
+		this.sourceWeights = parseSourceWeights(sourceWeightsRaw);
 	}
 
 	public UpdatesResponse getLatest(Integer requestedLimit) {
@@ -147,7 +151,7 @@ public class UpdatesService {
 			.filter(this::isHighSignal)
 			.filter(update -> seen.add(dedupKey(update)))
 			.sorted(Comparator
-				.comparingInt((SourceUpdate update) -> score(update, now)).reversed()
+				.comparingDouble((SourceUpdate update) -> score(update, now)).reversed()
 				.thenComparing(SourceUpdate::publishedAt, Comparator.reverseOrder()))
 			.limit(limit)
 			.toList();
@@ -190,7 +194,7 @@ public class UpdatesService {
 		return update.title().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").trim();
 	}
 
-	private int score(SourceUpdate update, Instant now) {
+	private double score(SourceUpdate update, Instant now) {
 		String haystack = (update.title() + " " + update.url()).toLowerCase(Locale.ROOT);
 		int keywordScore = 0;
 		for (String keyword : qualityKeywords) {
@@ -208,7 +212,9 @@ public class UpdatesService {
 
 		long ageHours = Math.max(0, Duration.between(update.publishedAt(), now).toHours());
 		int freshnessScore = (int) Math.max(0, 72 - ageHours);
-		return freshnessScore + keywordScore;
+		double baseScore = freshnessScore + keywordScore;
+		double weight = resolveSourceWeight(update.source());
+		return baseScore * weight;
 	}
 
 	private List<String> parseKeywords(String raw) {
@@ -221,6 +227,46 @@ public class UpdatesService {
 			.filter(value -> !value.isBlank())
 			.distinct()
 			.toList();
+	}
+
+	private Map<String, Double> parseSourceWeights(String raw) {
+		if (raw == null || raw.isBlank()) {
+			return Map.of();
+		}
+		Map<String, Double> weights = new java.util.HashMap<>();
+		for (String pair : raw.split(",")) {
+			String candidate = pair.trim();
+			if (candidate.isBlank() || !candidate.contains(":")) {
+				continue;
+			}
+			String[] parts = candidate.split(":", 2);
+			String key = normalizeSourceKey(parts[0]);
+			if (key.isBlank()) {
+				continue;
+			}
+			try {
+				double weight = Double.parseDouble(parts[1].trim());
+				if (Double.isFinite(weight) && weight >= 0d) {
+					weights.put(key, weight);
+				}
+			} catch (NumberFormatException ignored) {
+				// Ignore malformed entries and keep defaults.
+			}
+		}
+		return Map.copyOf(weights);
+	}
+
+	private double resolveSourceWeight(String source) {
+		String key = normalizeSourceKey(source);
+		return sourceWeights.getOrDefault(key, 1d);
+	}
+
+	private String normalizeSourceKey(String source) {
+		if (source == null || source.isBlank()) {
+			return "";
+		}
+		String normalized = source.trim().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-");
+		return normalized.replaceAll("(^-+|-+$)", "");
 	}
 
 	private int normalizeLimit(Integer requestedLimit) {

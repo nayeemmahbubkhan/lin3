@@ -35,7 +35,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
 		var response = updatesService.getLatest(1);
 
 		assertEquals(1, response.items().size());
@@ -61,7 +61,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
 		var response = updatesService.refreshLatest(1);
 
 		assertEquals(1, response.items().size());
@@ -78,7 +78,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "");
 
 		var first = updatesService.getLatest(1);
 		var second = updatesService.getLatest(1);
@@ -98,7 +98,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "");
 
 		updatesService.getLatest(1);
 		var refreshed = updatesService.refreshLatest(1);
@@ -135,7 +135,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "");
 		updatesService.getLatest(1);
 
 		var health = updatesService.getHealth();
@@ -154,7 +154,7 @@ class UpdatesServiceTest {
 			return List.of(new SourceUpdate("Item " + limit, "https://example.com/" + limit, Instant.parse("2026-04-20T10:00:00Z"), "Example"));
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "");
 		var result = updatesService.refreshAllCommonLimits(List.of(5, 8, 8, 99, 0));
 
 		assertEquals(3, result.refreshedCount());
@@ -172,12 +172,38 @@ class UpdatesServiceTest {
 			new SourceUpdate("AI platform launch for cloud workloads", "https://example.com/post/4", Instant.now().minus(Duration.ofHours(2)), "Example")
 		);
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, false, 300, true, "security,release,ai,cloud,database");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, false, 300, true, "security,release,ai,cloud,database", "");
 		var response = updatesService.getLatest(3);
 
 		assertEquals(2, response.items().size());
 		assertEquals("Security release for OSS database", response.items().get(0).title());
 		assertEquals("AI platform launch for cloud workloads", response.items().get(1).title());
+	}
+
+	@Test
+	void getLatestAppliesConfiguredSourceWeightsInRanking() {
+		Instant now = Instant.now();
+		TechUpdatesSource source = limit -> List.of(
+			new SourceUpdate("General platform update", "https://example.com/hn", now.minus(Duration.ofHours(3)), "Hacker News"),
+			new SourceUpdate("General platform update", "https://example.com/gh", now.minus(Duration.ofHours(3)), "GitHub Releases")
+		);
+
+		UpdatesService updatesService = new UpdatesService(
+			source,
+			simpleSummarizer(),
+			5,
+			false,
+			300,
+			true,
+			"",
+			"hacker-news:0.4,github-releases:1.8"
+		);
+
+		var response = updatesService.getLatest(2);
+
+		assertEquals(2, response.items().size());
+		assertEquals("https://example.com/gh", response.items().get(0).url());
+		assertEquals("https://example.com/hn", response.items().get(1).url());
 	}
 }
 

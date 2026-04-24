@@ -16,13 +16,16 @@ import java.io.StringReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class GitHubReleasesRssUpdatesSource implements TechUpdatesSource {
 
 	private final RestClient restClient;
-	private final String rssUrl;
+	private final List<String> rssUrls;
 	private volatile boolean available;
 	private volatile Instant lastCheckedAt;
 	private volatile Instant lastSuccessAt;
@@ -30,51 +33,66 @@ public class GitHubReleasesRssUpdatesSource implements TechUpdatesSource {
 
 	public GitHubReleasesRssUpdatesSource(
 		RestClient.Builder restClientBuilder,
-		@Value("${techpulse.updates.github-rss-url:https://github.com/spring-projects/spring-boot/releases.atom}") String rssUrl
+		@Value("${techpulse.updates.github-rss-url:https://github.com/spring-projects/spring-boot/releases.atom}") String rssUrl,
+		@Value("${techpulse.updates.github-rss-urls:}") String rssUrlsRaw
 	) {
 		this.restClient = restClientBuilder.build();
-		this.rssUrl = rssUrl;
+		this.rssUrls = parseRssUrls(rssUrlsRaw, rssUrl);
 	}
+
 
 	@Override
 	public List<SourceUpdate> fetchLatest(int limit) {
 		try {
-			String xml = restClient.get()
-				.uri(rssUrl)
-				.retrieve()
-				.body(String.class);
-			if (xml == null || xml.isBlank()) {
-				markFailure("Empty RSS response");
-				return List.of();
-			}
-
-			Document document = parseXml(xml);
-			NodeList entries = document.getElementsByTagName("entry");
 			List<SourceUpdate> updates = new ArrayList<>();
+			List<String> errors = new ArrayList<>();
 
-			for (int i = 0; i < entries.getLength(); i++) {
-				Element entry = (Element) entries.item(i);
-				String title = text(entry, "title");
-				String updated = text(entry, "updated");
-				String link = firstLinkHref(entry);
-				if (title.isBlank() || link.isBlank()) {
-					continue;
-				}
-
-				Instant publishedAt;
+			for (String rssUrl : rssUrls) {
 				try {
-					publishedAt = Instant.parse(updated);
-				} catch (Exception ignored) {
-					publishedAt = Instant.now();
+					String xml = restClient.get()
+						.uri(rssUrl)
+						.retrieve()
+						.body(String.class);
+					if (xml == null || xml.isBlank()) {
+						errors.add("Empty RSS response: " + rssUrl);
+						continue;
+					}
+
+					Document document = parseXml(xml);
+					NodeList entries = document.getElementsByTagName("entry");
+
+					for (int i = 0; i < entries.getLength(); i++) {
+						Element entry = (Element) entries.item(i);
+						String title = text(entry, "title");
+						String updated = text(entry, "updated");
+						String link = firstLinkHref(entry);
+						if (title.isBlank() || link.isBlank()) {
+							continue;
+						}
+
+						Instant publishedAt;
+						try {
+							publishedAt = Instant.parse(updated);
+						} catch (Exception ignored) {
+							publishedAt = Instant.now();
+						}
+						updates.add(new SourceUpdate(title.trim(), link.trim(), publishedAt, "GitHub Releases"));
+					}
+				} catch (Exception ex) {
+					errors.add(rssUrl + " -> " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 				}
-				updates.add(new SourceUpdate(title.trim(), link.trim(), publishedAt, "GitHub Releases"));
 			}
 
 			if (updates.isEmpty()) {
-				markFailure("No valid entries in RSS feed");
+				if (errors.isEmpty()) {
+					markFailure("No valid entries in RSS feed");
+				} else {
+					markFailure(String.join(" | ", errors));
+				}
 				return List.of();
 			}
 
+			updates = deduplicate(updates);
 			updates.sort(Comparator.comparing(SourceUpdate::publishedAt).reversed());
 			markSuccess();
 			return updates.stream().limit(limit).toList();
@@ -117,6 +135,33 @@ public class GitHubReleasesRssUpdatesSource implements TechUpdatesSource {
 			}
 		}
 		return "";
+	}
+
+	private List<String> parseRssUrls(String rssUrlsRaw, String fallbackRssUrl) {
+		if (rssUrlsRaw == null || rssUrlsRaw.isBlank()) {
+			return List.of(fallbackRssUrl);
+		}
+		List<String> urls = java.util.Arrays.stream(rssUrlsRaw.split(","))
+			.map(String::trim)
+			.filter(value -> !value.isBlank())
+			.distinct()
+			.toList();
+		return urls.isEmpty() ? List.of(fallbackRssUrl) : urls;
+	}
+
+	private List<SourceUpdate> deduplicate(List<SourceUpdate> updates) {
+		Set<String> seen = new HashSet<>();
+		List<SourceUpdate> deduped = new ArrayList<>();
+		for (SourceUpdate update : updates) {
+			String key = update.url().trim().toLowerCase(Locale.ROOT);
+			if (key.isBlank()) {
+				continue;
+			}
+			if (seen.add(key)) {
+				deduped.add(update);
+			}
+		}
+		return deduped;
 	}
 
 	private void markSuccess() {

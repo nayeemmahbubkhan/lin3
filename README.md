@@ -62,5 +62,7 @@ export TECHPULSE_DB_PASSWORD=techpulse
 - Auto refresh can be enabled with `techpulse.updates.auto-refresh.enabled=true`.
 - Feed quality pipeline (dedup + relevance ranking + stale filtering) is enabled by default.
 - GitHub releases source URL is configurable via `techpulse.updates.github-rss-url`.
+- Multi-repo GitHub releases ingestion can be configured via `techpulse.updates.github-rss-urls` (comma-separated Atom feed URLs).
+- Ranking source weights are configurable via `techpulse.updates.source-weights` (for example `hacker-news:1.0,github-releases:1.2`).
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
 
