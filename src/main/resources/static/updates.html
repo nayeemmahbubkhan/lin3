@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tech Pulse Updates</title>
+	<style>
+		:root {
+			font-family: Arial, sans-serif;
+			color: #111827;
+			background: #f8fafc;
+		}
+		body {
+			margin: 0;
+			padding: 2rem 1rem;
+			display: grid;
+			place-items: center;
+		}
+		main {
+			width: min(900px, 96vw);
+		}
+		h1 {
+			margin-top: 0;
+		}
+		#meta {
+			color: #475569;
+			margin-bottom: 1rem;
+		}
+		.grid {
+			display: grid;
+			gap: 1rem;
+		}
+		.card {
+			background: white;
+			padding: 1rem;
+			border-radius: 10px;
+			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+		}
+		.card h3 {
+			margin: 0 0 0.3rem;
+		}
+		.meta {
+			font-size: 0.9rem;
+			color: #64748b;
+		}
+		.action {
+			font-weight: 600;
+			color: #1e40af;
+		}
+		a {
+			color: #2563eb;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<h1>Tech Pulse</h1>
+	<p id="meta">Loading latest updates...</p>
+	<div id="list" class="grid"></div>
+</main>
+
+<script>
+	const list = document.getElementById('list');
+	const meta = document.getElementById('meta');
+
+	async function loadUpdates() {
+		try {
+			const response = await fetch('/api/updates?limit=8');
+			const data = await response.json();
+			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString();
+			list.innerHTML = '';
+
+			for (const item of data.items) {
+				const card = document.createElement('article');
+				card.className = 'card';
+				card.innerHTML = `
+					<h3>${item.title}</h3>
+					<p class="meta">${item.source} • ${new Date(item.publishedAt).toLocaleString()}</p>
+					<p>${item.summary}</p>
+					<p class="action">${item.action}</p>
+					<p><a href="${item.url}" target="_blank" rel="noopener noreferrer">Read source</a></p>
+				`;
+				list.appendChild(card);
+			}
+		} catch (error) {
+			meta.textContent = 'Could not load updates right now.';
+		}
+	}
+
+	loadUpdates();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>lin3.de</title>
+	<style>
+		:root {
+			font-family: Arial, sans-serif;
+			color: #111827;
+			background: #f8fafc;
+		}
+		body {
+			margin: 0;
+			display: grid;
+			place-items: center;
+			min-height: 100vh;
+		}
+		main {
+			width: min(720px, 92vw);
+			background: white;
+			padding: 2rem;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+		}
+		h1 { margin-top: 0; }
+		form {
+			display: grid;
+			gap: 0.8rem;
+		}
+		label { font-weight: 600; }
+		input, textarea {
+			width: 100%;
+			padding: 0.7rem;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			font: inherit;
+		}
+		button {
+			background: #2563eb;
+			color: white;
+			border: 0;
+			padding: 0.7rem 1rem;
+			border-radius: 8px;
+			cursor: pointer;
+			font: inherit;
+			font-weight: 600;
+		}
+		#status { min-height: 1.5rem; }
+		.hidden-trap {
+			position: absolute;
+			left: -9999px;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<h1>Welcome to Tech Pulse</h1>
+	<p>Daily tech updates in plain language. Visit <a href="/updates.html">/updates.html</a> for the live feed.</p>
+
+	<form id="contactForm">
+		<div>
+			<label for="name">Name</label>
+			<input id="name" name="name" maxlength="100" required>
+		</div>
+		<div>
+			<label for="email">Email</label>
+			<input id="email" name="email" type="email" maxlength="255" required>
+		</div>
+		<div>
+			<label for="message">Message</label>
+			<textarea id="message" name="message" rows="6" maxlength="2000" required></textarea>
+		</div>
+
+		<!-- Honeypot spam field: humans should never fill this in. -->
+		<div class="hidden-trap" aria-hidden="true">
+			<label for="website">Website</label>
+			<input id="website" name="website" autocomplete="off" tabindex="-1">
+		</div>
+
+		<button type="submit">Send Message</button>
+		<p id="status"></p>
+	</form>
+</main>
+
+<script>
+	const form = document.getElementById('contactForm');
+	const statusEl = document.getElementById('status');
+
+	form.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		statusEl.textContent = 'Sending...';
+
+		const payload = {
+			name: form.name.value,
+			email: form.email.value,
+			message: form.message.value,
+			website: form.website.value
+		};
+
+		const response = await fetch('/api/contact', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload)
+		});
+
+		const body = await response.json();
+		if (response.ok) {
+			statusEl.textContent = 'Thanks, your message was sent. Reference: ' + body.reference;
+			form.reset();
+		} else {
+			statusEl.textContent = body.message || 'Could not send message.';
+		}
+	});
+</script>
+</body>
+</html>
+
