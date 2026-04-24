@@ -41,7 +41,13 @@ public class UpdatesService {
 		if (cacheEnabled) {
 			CacheEntry cached = cacheByLimit.get(limit);
 			if (cached != null && !isExpired(cached.cachedAt())) {
-				return cached.response();
+				return new UpdatesResponse(
+					cached.response().generatedAt(),
+					cached.response().source(),
+					cached.response().items(),
+					true,
+					cached.cachedAt()
+				);
 			}
 		}
 		return refreshLatest(limit);
@@ -70,7 +76,7 @@ public class UpdatesService {
 			))
 			.toList();
 
-		return new UpdatesResponse(Instant.now(), "hacker-news", items);
+		return new UpdatesResponse(Instant.now(), "hacker-news", items, false, null);
 	}
 
 	private boolean isExpired(Instant cachedAt) {

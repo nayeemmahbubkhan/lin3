@@ -43,7 +43,9 @@ class UpdatesControllerTest {
 				Instant.parse("2026-04-24T09:00:00Z"),
 				"Short summary",
 				"Review changelog"
-			))
+			)),
+			false,
+			null
 		);
 
 		when(updatesService.getLatest(eq(3))).thenReturn(response);
@@ -67,7 +69,9 @@ class UpdatesControllerTest {
 				Instant.parse("2026-04-24T09:30:00Z"),
 				"Short summary",
 				"Patch production systems"
-			))
+			)),
+			false,
+			null
 		);
 
 		when(updatesService.refreshLatest(eq(2))).thenReturn(response);

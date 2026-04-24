@@ -67,7 +67,10 @@
 		try {
 			const response = await fetch('/api/updates?limit=8');
 			const data = await response.json();
-			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString();
+			const freshness = data.fromCache
+				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
+				: 'freshly generated';
+			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString() + ' | ' + freshness;
 			list.innerHTML = '';
 
 			for (const item of data.items) {

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UpdatesServiceTest {
 
@@ -35,6 +38,7 @@ class UpdatesServiceTest {
 
 		assertEquals(1, response.items().size());
 		assertEquals("Summary for Release 1.0 launched", response.items().get(0).summary());
+		assertFalse(response.fromCache());
 	}
 
 	@Test
@@ -60,6 +64,7 @@ class UpdatesServiceTest {
 
 		assertEquals(1, response.items().size());
 		assertEquals("Summary for Release 2.0 launched", response.items().get(0).summary());
+		assertFalse(response.fromCache());
 	}
 
 	@Test
@@ -73,10 +78,13 @@ class UpdatesServiceTest {
 		UpdatesSummarizer summarizer = simpleSummarizer();
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300);
 
-		updatesService.getLatest(1);
-		updatesService.getLatest(1);
+		var first = updatesService.getLatest(1);
+		var second = updatesService.getLatest(1);
 
 		assertEquals(1, calls.get());
+		assertFalse(first.fromCache());
+		assertTrue(second.fromCache());
+		assertNotNull(second.cachedAt());
 	}
 
 	@Test
@@ -91,9 +99,10 @@ class UpdatesServiceTest {
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300);
 
 		updatesService.getLatest(1);
-		updatesService.refreshLatest(1);
+		var refreshed = updatesService.refreshLatest(1);
 
 		assertEquals(2, calls.get());
+		assertFalse(refreshed.fromCache());
 	}
 
 	private UpdatesSummarizer simpleSummarizer() {
