@@ -20,7 +20,7 @@ class UpdatesRefreshSchedulerTest {
 		when(updatesService.refreshAllCommonLimits(eq(List.of(5, 8))))
 			.thenReturn(new UpdatesRefreshAllResponse(Instant.now(), List.of(5, 8), 2, true));
 
-		UpdatesRefreshScheduler scheduler = new UpdatesRefreshScheduler(updatesService, true, "5,8");
+		UpdatesRefreshScheduler scheduler = new UpdatesRefreshScheduler(updatesService, new UpdatesLimitParser(), true, "5,8");
 		scheduler.refreshCommonLimits();
 
 		verify(updatesService).refreshAllCommonLimits(eq(List.of(5, 8)));
@@ -29,7 +29,7 @@ class UpdatesRefreshSchedulerTest {
 	@Test
 	void refreshCommonLimitsSkipsWhenDisabled() {
 		UpdatesService updatesService = mock(UpdatesService.class);
-		UpdatesRefreshScheduler scheduler = new UpdatesRefreshScheduler(updatesService, false, "5,8");
+		UpdatesRefreshScheduler scheduler = new UpdatesRefreshScheduler(updatesService, new UpdatesLimitParser(), false, "5,8");
 
 		scheduler.refreshCommonLimits();
 

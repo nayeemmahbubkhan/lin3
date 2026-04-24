@@ -2,6 +2,7 @@ package lin3.de.techpulse.controller;
 
 import lin3.de.techpulse.model.UpdatesResponse;
 import lin3.de.techpulse.model.UpdatesRefreshAllResponse;
+import lin3.de.techpulse.service.UpdatesLimitParser;
 import lin3.de.techpulse.service.UpdatesService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,16 @@ import java.util.List;
 public class UpdatesController {
 
 	private final UpdatesService updatesService;
+	private final UpdatesLimitParser updatesLimitParser;
 	private final String commonLimits;
 
 	public UpdatesController(
 		UpdatesService updatesService,
+		UpdatesLimitParser updatesLimitParser,
 		@Value("${techpulse.updates.common-limits:5,8}") String commonLimits
 	) {
 		this.updatesService = updatesService;
+		this.updatesLimitParser = updatesLimitParser;
 		this.commonLimits = commonLimits;
 	}
 
@@ -38,23 +42,12 @@ public class UpdatesController {
 	}
 
 	@PostMapping("/refresh-all")
-	public UpdatesRefreshAllResponse refreshAll() {
-		return updatesService.refreshAllCommonLimits(parseLimits(commonLimits));
-	}
-
-	private List<Integer> parseLimits(String raw) {
-		return java.util.Arrays.stream(raw.split(","))
-			.map(String::trim)
-			.filter(value -> !value.isBlank())
-			.map(value -> {
-				try {
-					return Integer.parseInt(value);
-				} catch (NumberFormatException ex) {
-					return null;
-				}
-			})
-			.filter(java.util.Objects::nonNull)
-			.toList();
+	public UpdatesRefreshAllResponse refreshAll(@RequestParam(required = false) String limits) {
+		List<Integer> parsed = updatesLimitParser.parse(limits);
+		if (parsed.isEmpty()) {
+			parsed = updatesLimitParser.parse(commonLimits);
+		}
+		return updatesService.refreshAllCommonLimits(parsed);
 	}
 }
 

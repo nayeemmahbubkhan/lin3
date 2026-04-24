@@ -4,6 +4,7 @@ import lin3.de.techpulse.config.SecurityConfig;
 import lin3.de.techpulse.model.TechUpdate;
 import lin3.de.techpulse.model.UpdatesRefreshAllResponse;
 import lin3.de.techpulse.model.UpdatesResponse;
+import lin3.de.techpulse.service.UpdatesLimitParser;
 import lin3.de.techpulse.service.UpdatesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ class UpdatesControllerTest {
 
 	@MockBean
 	private UpdatesService updatesService;
+
+	@MockBean
+	private UpdatesLimitParser updatesLimitParser;
 
 	@Test
 	void latestReturnsUpdatesPayload() throws Exception {
@@ -93,6 +97,8 @@ class UpdatesControllerTest {
 			true
 		);
 
+		when(updatesLimitParser.parse(eq(null))).thenReturn(List.of());
+		when(updatesLimitParser.parse(eq("5,8"))).thenReturn(List.of(5, 8));
 		when(updatesService.refreshAllCommonLimits(eq(List.of(5, 8)))).thenReturn(response);
 
 		mockMvc.perform(post("/api/updates/refresh-all"))
@@ -100,6 +106,25 @@ class UpdatesControllerTest {
 			.andExpect(jsonPath("$.refreshedCount").value(2))
 			.andExpect(jsonPath("$.limits[0]").value(5))
 			.andExpect(jsonPath("$.sourceAvailable").value(true));
+	}
+
+	@Test
+	void refreshAllWithCustomLimitsUsesRequestValue() throws Exception {
+		UpdatesRefreshAllResponse response = new UpdatesRefreshAllResponse(
+			Instant.parse("2026-04-24T10:10:00Z"),
+			List.of(3, 10),
+			2,
+			true
+		);
+
+		when(updatesLimitParser.parse(eq("3,10"))).thenReturn(List.of(3, 10));
+		when(updatesService.refreshAllCommonLimits(eq(List.of(3, 10)))).thenReturn(response);
+
+		mockMvc.perform(post("/api/updates/refresh-all").param("limits", "3,10"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.refreshedCount").value(2))
+			.andExpect(jsonPath("$.limits[0]").value(3))
+			.andExpect(jsonPath("$.limits[1]").value(10));
 	}
 }
 

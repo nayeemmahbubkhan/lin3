@@ -30,6 +30,7 @@ Tech feed endpoint example:
 curl "http://localhost:8080/api/updates?limit=5"
 curl -X POST "http://localhost:8080/api/updates/refresh?limit=5"
 curl -X POST "http://localhost:8080/api/updates/refresh-all"
+curl -X POST "http://localhost:8080/api/updates/refresh-all?limits=3,10"
 curl "http://localhost:8080/api/health/updates"
 ```
 

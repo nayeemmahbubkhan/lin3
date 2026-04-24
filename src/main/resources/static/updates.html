@@ -33,6 +33,12 @@
 			margin-bottom: 1rem;
 			flex-wrap: wrap;
 		}
+		.toolbar input {
+			padding: 0.5rem 0.7rem;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			font: inherit;
+		}
 		button {
 			background: #2563eb;
 			color: white;
@@ -95,6 +101,7 @@
 <main>
 	<h1>Tech Pulse</h1>
 	<div class="toolbar">
+		<input id="limitsInput" type="text" value="5,8" aria-label="Refresh limits" title="Comma-separated limits">
 		<button id="refreshBtn" type="button">Refresh now</button>
 		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
 	</div>
@@ -106,6 +113,7 @@
 	const list = document.getElementById('list');
 	const meta = document.getElementById('meta');
 	const refreshBtn = document.getElementById('refreshBtn');
+	const limitsInput = document.getElementById('limitsInput');
 	const sourceBadge = document.getElementById('sourceBadge');
 
 	async function loadUpdates() {
@@ -156,7 +164,9 @@
 		refreshBtn.disabled = true;
 		refreshBtn.textContent = 'Refreshing...';
 		try {
-			await fetch('/api/updates/refresh-all', { method: 'POST' });
+			const limits = limitsInput.value.trim();
+			const query = limits ? '?limits=' + encodeURIComponent(limits) : '';
+			await fetch('/api/updates/refresh-all' + query, { method: 'POST' });
 			await Promise.all([loadUpdates(), loadHealth()]);
 		} finally {
 			refreshBtn.disabled = false;
