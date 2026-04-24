@@ -45,5 +45,12 @@ class HealthControllerTest {
 			.andExpect(jsonPath("$.cache.enabled").value(true))
 			.andExpect(jsonPath("$.cache.entryCount").value(2));
 	}
+
+	@Test
+	void metadataReturnsLocalLlmModeFlag() throws Exception {
+		mockMvc.perform(get("/api/health/meta"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.localLlmEnabled").value(false));
+	}
 }
 

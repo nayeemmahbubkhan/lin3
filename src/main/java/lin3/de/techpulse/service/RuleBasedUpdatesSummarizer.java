@@ -14,10 +14,8 @@ public class RuleBasedUpdatesSummarizer implements UpdatesSummarizer {
 
 	@Override
 	public String summarize(SourceUpdate update) {
-		String prompt = promptBuilder.buildPrompt(update);
-		String hint = prompt.length() > 120 ? prompt.substring(0, 120) + "..." : prompt;
 		return "Quick brief: " + update.title() + " (" + update.source() + "). "
-			+ "Read the source for context. Prompt seed: " + hint;
+			+ "Read the source for technical details and assess impact on your stack.";
 	}
 
 	@Override

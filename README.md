@@ -11,6 +11,7 @@ Small Spring Boot backend for `www.lin3.de` with a homepage dashboard, a simple 
 - Manual refresh API at `POST /api/updates/refresh?limit=8`
 - Refresh common limits API at `POST /api/updates/refresh-all`
 - Updates health API at `GET /api/health/updates`
+- Metadata API at `GET /api/health/meta`
 - Homepage (`/`) includes refresh controls, latest updates, and source health status.
 - Feed ingests multiple sources (Hacker News + GitHub Releases RSS).
 - Basic spam trap (hidden `website` field)
@@ -33,6 +34,7 @@ curl -X POST "http://localhost:8080/api/updates/refresh?limit=5"
 curl -X POST "http://localhost:8080/api/updates/refresh-all"
 curl -X POST "http://localhost:8080/api/updates/refresh-all?limits=3,10"
 curl "http://localhost:8080/api/health/updates"
+curl "http://localhost:8080/api/health/meta"
 ```
 
 ## Run with PostgreSQL
@@ -58,6 +60,7 @@ export TECHPULSE_DB_PASSWORD=techpulse
 - Legacy env vars `LIN3_DB_URL`, `LIN3_DB_USER`, and `LIN3_DB_PASSWORD` are still accepted as fallback.
 - `GET /api/updates` uses a short in-memory cache; `POST /api/updates/refresh` forces fresh regeneration.
 - Updates responses include cache metadata fields: `fromCache` and `cachedAt`.
+- Homepage reads `GET /api/health/meta` to show whether local LLM mode is enabled.
 - Optional Ollama summarization can be enabled with `techpulse.llm.enabled=true`.
 - Auto refresh can be enabled with `techpulse.updates.auto-refresh.enabled=true`.
 - Feed quality pipeline (dedup + relevance ranking + stale filtering) is enabled by default.

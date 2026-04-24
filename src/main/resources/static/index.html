@@ -19,7 +19,7 @@
 		main {
 			width: min(900px, 96vw);
 			background: white;
-			padding: 2rem;
+			padding: 1.5rem;
 			border-radius: 14px;
 			box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
 		}
@@ -39,17 +39,21 @@
 		}
 		h1 {
 			margin-top: 0;
-			margin-bottom: 0.4rem;
+			margin-bottom: 0.25rem;
+			text-align: center;
 		}
-		p {
-			margin-top: 0;
+		.subtitle {
+			margin: 0 0 0.7rem;
+			color: #475569;
+			font-size: 0.96rem;
+			text-align: center;
 		}
 		.toolbar {
 			display: flex;
 			gap: 0.7rem;
 			align-items: center;
 			flex-wrap: wrap;
-			margin-bottom: 1rem;
+			margin-bottom: 0.8rem;
 		}
 		button {
 			background: linear-gradient(135deg, #2563eb, #1d4ed8);
@@ -85,16 +89,38 @@
 		}
 		#meta {
 			color: #475569;
-			margin-bottom: 1rem;
+			margin: 0 0 0.2rem;
+		}
+
+		.sections {
+			display: grid;
+			gap: 1rem;
+		}
+		.section {
+			padding-top: 0.25rem;
+		}
+		.section-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			margin-bottom: 0.5rem;
+		}
+		.section-head h2 {
+			font-size: 1rem;
+			margin: 0;
+		}
+		.section-head .hint {
+			font-size: 0.83rem;
+			color: #64748b;
 		}
 		.grid {
 			display: grid;
-			gap: 1rem;
-			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+			gap: 0.9rem;
+			grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 		}
 		.card {
 			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-			padding: 1rem;
+			padding: 0.9rem;
 			border-radius: 12px;
 			border: 1px solid #e2e8f0;
 			box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
@@ -121,7 +147,7 @@
 		}
 		.item-summary {
 			display: -webkit-box;
-			-webkit-line-clamp: 4;
+			-webkit-line-clamp: 3;
 			-webkit-box-orient: vertical;
 			overflow: hidden;
 		}
@@ -144,14 +170,14 @@
 		<a href="/" class="active">Home</a>
 		<a href="/contact.html">Contact</a>
 	</nav>
-	<h1>Tech Pulse Dashboard</h1>
-	<p>Track fresh engineering updates, verify source health, and trigger a refresh when needed.</p>
+	<h1>Tech Pulse Briefing</h1>
+	<p class="subtitle">A focused daily view: 2 updates each for security, releases, and ecosystem signals.</p>
 	<div class="toolbar">
-		<button id="refreshBtn" type="button">Refresh now</button>
+		<button id="refreshBtn" type="button">Refresh feed</button>
 		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
 	</div>
 	<p id="meta">Loading latest updates...</p>
-	<div id="list" class="grid"></div>
+	<div id="list" class="sections"></div>
 </main>
 
 <script>
@@ -185,25 +211,52 @@
 		return 'signal';
 	}
 
-	function chooseFocusedItems(items) {
+	function pickTwoPerCategory(items) {
+		const groups = { security: [], release: [], signal: [] };
+		for (const item of items) {
+			groups[detectType(item)].push(item);
+		}
+
 		const used = new Set();
-		const typed = items.map(item => ({ item, detected: detectType(item) }));
+		const fallbackPool = items.filter(item => {
+			if (!item || !item.url || used.has(item.url)) {
+				return false;
+			}
+			return true;
+		});
+
 		return cardTypes.map(type => {
-			let match = typed.find(entry => entry.detected === type.key && !used.has(entry.item.url));
-			if (!match) {
-				match = typed.find(entry => !used.has(entry.item.url));
+			const selected = [];
+			for (const item of groups[type.key]) {
+				if (selected.length === 2) {
+					break;
+				}
+				if (item.url && !used.has(item.url)) {
+					selected.push(item);
+					used.add(item.url);
+				}
 			}
-			if (!match) {
-				return { type, item: null };
+
+			for (const item of fallbackPool) {
+				if (selected.length === 2) {
+					break;
+				}
+				if (item.url && !used.has(item.url)) {
+					selected.push(item);
+					used.add(item.url);
+				}
 			}
-			used.add(match.item.url);
-			return { type, item: match.item };
+
+			while (selected.length < 2) {
+				selected.push(null);
+			}
+			return { type, items: selected };
 		});
 	}
 
 	async function loadUpdates() {
 		try {
-			const response = await fetch('/api/updates?limit=10');
+			const response = await fetch('/api/updates?limit=16');
 			const data = await response.json();
 			const freshness = data.fromCache
 				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
@@ -216,30 +269,46 @@
 				return;
 			}
 
-			const focused = chooseFocusedItems(data.items);
-			for (const entry of focused) {
-				const card = document.createElement('article');
-				card.className = `card ${entry.type.key}`;
-				if (!entry.item) {
+			const sections = pickTwoPerCategory(data.items);
+			for (const section of sections) {
+				const sectionEl = document.createElement('section');
+				sectionEl.className = 'section';
+				sectionEl.innerHTML = `
+					<div class="section-head">
+						<h2>${section.type.label}</h2>
+						<span class="hint">2 items</span>
+					</div>
+				`;
+
+				const gridEl = document.createElement('div');
+				gridEl.className = 'grid';
+
+				for (const item of section.items) {
+					const card = document.createElement('article');
+					card.className = `card ${section.type.key}`;
+					if (!item) {
+						card.innerHTML = `
+							<span class="card-label ${section.type.key}">${section.type.label}</span>
+							<h3>No matching item</h3>
+							<p class="item-summary">A second update for this category is not available right now.</p>
+						`;
+						gridEl.appendChild(card);
+						continue;
+					}
+
 					card.innerHTML = `
-						<span class="card-label ${entry.type.key}">${entry.type.label}</span>
-						<h3>No matching item</h3>
-						<p class="item-summary">A focused update for this category is not available right now.</p>
+						<span class="card-label ${section.type.key}">${section.type.label}</span>
+						<h3>${escapeHtml(item.title)}</h3>
+						<p class="item-meta">${escapeHtml(item.source)} • ${new Date(item.publishedAt).toLocaleString()}</p>
+						<p class="item-summary">${escapeHtml(item.summary)}</p>
+						<p class="item-action">${escapeHtml(item.action)}</p>
+						<p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Read source</a></p>
 					`;
-					list.appendChild(card);
-					continue;
+					gridEl.appendChild(card);
 				}
 
-				const item = entry.item;
-				card.innerHTML = `
-					<span class="card-label ${entry.type.key}">${entry.type.label}</span>
-					<h3>${escapeHtml(item.title)}</h3>
-					<p class="item-meta">${escapeHtml(item.source)} • ${new Date(item.publishedAt).toLocaleString()}</p>
-					<p class="item-summary">${escapeHtml(item.summary)}</p>
-					<p class="item-action">${escapeHtml(item.action)}</p>
-					<p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Read source</a></p>
-				`;
-				list.appendChild(card);
+				sectionEl.appendChild(gridEl);
+				list.appendChild(sectionEl);
 			}
 		} catch (error) {
 			meta.textContent = 'Could not load updates right now.';
@@ -266,13 +335,13 @@
 
 	async function refreshNow() {
 		refreshBtn.disabled = true;
-		refreshBtn.textContent = 'Refreshing...';
+		refreshBtn.textContent = 'Refreshing feed...';
 		try {
 			await fetch('/api/updates/refresh-all', { method: 'POST' });
 			await Promise.all([loadUpdates(), loadHealth()]);
 		} finally {
 			refreshBtn.disabled = false;
-			refreshBtn.textContent = 'Refresh now';
+			refreshBtn.textContent = 'Refresh feed';
 		}
 	}
 
