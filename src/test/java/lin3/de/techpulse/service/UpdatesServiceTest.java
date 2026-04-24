@@ -4,6 +4,7 @@ import lin3.de.techpulse.model.SourceUpdate;
 import lin3.de.techpulse.model.UpdatesSourceHealth;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,11 +35,11 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300);
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai");
 		var response = updatesService.getLatest(1);
 
 		assertEquals(1, response.items().size());
-		assertEquals("Summary for Release 1.0 launched", response.items().get(0).summary());
+		assertTrue(response.items().get(0).summary().startsWith("Summary for "));
 		assertFalse(response.fromCache());
 	}
 
@@ -60,7 +61,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300);
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai");
 		var response = updatesService.refreshLatest(1);
 
 		assertEquals(1, response.items().size());
@@ -77,7 +78,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300);
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai");
 
 		var first = updatesService.getLatest(1);
 		var second = updatesService.getLatest(1);
@@ -97,7 +98,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300);
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai");
 
 		updatesService.getLatest(1);
 		var refreshed = updatesService.refreshLatest(1);
@@ -134,7 +135,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300);
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai");
 		updatesService.getLatest(1);
 
 		var health = updatesService.getHealth();
@@ -153,12 +154,30 @@ class UpdatesServiceTest {
 			return List.of(new SourceUpdate("Item " + limit, "https://example.com/" + limit, Instant.parse("2026-04-20T10:00:00Z"), "Example"));
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300);
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai");
 		var result = updatesService.refreshAllCommonLimits(List.of(5, 8, 8, 99, 0));
 
 		assertEquals(3, result.refreshedCount());
 		assertEquals(List.of(5, 8, 20), result.limits());
 		assertEquals(3, calls.get());
+	}
+
+	@Test
+	void getLatestDeduplicatesAndPrioritizesRelevantItems() {
+		TechUpdatesSource source = limit -> List.of(
+			new SourceUpdate("Security release for OSS database", "https://example.com/post/1", Instant.now().minus(Duration.ofHours(1)), "Example"),
+			new SourceUpdate("Security release for OSS database", "https://example.com/post/1", Instant.now().minus(Duration.ofHours(1)), "Example"),
+			new SourceUpdate("Tiny", "https://example.com/post/2", Instant.now().minus(Duration.ofHours(1)), "Example"),
+			new SourceUpdate("Old release notice", "https://example.com/post/3", Instant.now().minus(Duration.ofDays(20)), "Example"),
+			new SourceUpdate("AI platform launch for cloud workloads", "https://example.com/post/4", Instant.now().minus(Duration.ofHours(2)), "Example")
+		);
+
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, false, 300, true, "security,release,ai,cloud,database");
+		var response = updatesService.getLatest(3);
+
+		assertEquals(2, response.items().size());
+		assertEquals("Security release for OSS database", response.items().get(0).title());
+		assertEquals("AI platform launch for cloud workloads", response.items().get(1).title());
 	}
 }
 

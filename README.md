@@ -59,5 +59,6 @@ export TECHPULSE_DB_PASSWORD=techpulse
 - Updates responses include cache metadata fields: `fromCache` and `cachedAt`.
 - Optional Ollama summarization can be enabled with `techpulse.llm.enabled=true`.
 - Auto refresh can be enabled with `techpulse.updates.auto-refresh.enabled=true`.
+- Feed quality pipeline (dedup + relevance ranking + stale filtering) is enabled by default.
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
 
