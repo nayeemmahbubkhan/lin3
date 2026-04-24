@@ -6,8 +6,11 @@ import lin3.de.techpulse.model.UpdatesResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class UpdatesService {
@@ -17,17 +20,43 @@ public class UpdatesService {
 	private final TechUpdatesSource techUpdatesSource;
 	private final UpdatesSummarizer updatesSummarizer;
 	private final int defaultLimit;
+	private final boolean cacheEnabled;
+	private final Duration cacheTtl;
+	private final ConcurrentMap<Integer, CacheEntry> cacheByLimit = new ConcurrentHashMap<>();
 
 	public UpdatesService(TechUpdatesSource techUpdatesSource,
 		UpdatesSummarizer updatesSummarizer,
-		@Value("${techpulse.updates.default-limit:5}") int defaultLimit) {
+		@Value("${techpulse.updates.default-limit:5}") int defaultLimit,
+		@Value("${techpulse.updates.cache.enabled:true}") boolean cacheEnabled,
+		@Value("${techpulse.updates.cache-ttl-seconds:300}") long cacheTtlSeconds) {
 		this.techUpdatesSource = techUpdatesSource;
 		this.updatesSummarizer = updatesSummarizer;
 		this.defaultLimit = defaultLimit;
+		this.cacheEnabled = cacheEnabled;
+		this.cacheTtl = Duration.ofSeconds(Math.max(0, cacheTtlSeconds));
 	}
 
 	public UpdatesResponse getLatest(Integer requestedLimit) {
 		int limit = normalizeLimit(requestedLimit);
+		if (cacheEnabled) {
+			CacheEntry cached = cacheByLimit.get(limit);
+			if (cached != null && !isExpired(cached.cachedAt())) {
+				return cached.response();
+			}
+		}
+		return refreshLatest(limit);
+	}
+
+	public UpdatesResponse refreshLatest(Integer requestedLimit) {
+		int limit = normalizeLimit(requestedLimit);
+		UpdatesResponse response = buildLatest(limit);
+		if (cacheEnabled) {
+			cacheByLimit.put(limit, new CacheEntry(response, Instant.now()));
+		}
+		return response;
+	}
+
+	private UpdatesResponse buildLatest(int limit) {
 		List<SourceUpdate> sourceUpdates = techUpdatesSource.fetchLatest(limit);
 		List<TechUpdate> items = sourceUpdates.stream()
 			.limit(limit)
@@ -44,8 +73,8 @@ public class UpdatesService {
 		return new UpdatesResponse(Instant.now(), "hacker-news", items);
 	}
 
-	public UpdatesResponse refreshLatest(Integer requestedLimit) {
-		return getLatest(requestedLimit);
+	private boolean isExpired(Instant cachedAt) {
+		return cacheTtl.isZero() || cachedAt.plus(cacheTtl).isBefore(Instant.now());
 	}
 
 	private int normalizeLimit(Integer requestedLimit) {
@@ -53,6 +82,9 @@ public class UpdatesService {
 			return Math.min(defaultLimit, MAX_LIMIT);
 		}
 		return Math.min(requestedLimit, MAX_LIMIT);
+	}
+
+	private record CacheEntry(UpdatesResponse response, Instant cachedAt) {
 	}
 }
 
