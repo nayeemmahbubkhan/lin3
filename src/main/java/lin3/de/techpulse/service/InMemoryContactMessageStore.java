@@ -1,14 +1,12 @@
 package lin3.de.techpulse.service;
 
 import lin3.de.techpulse.model.ContactMessage;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
-@Profile("!postgres")
 public class InMemoryContactMessageStore implements ContactMessageStore {
 
 	private final CopyOnWriteArrayList<ContactMessage> messages = new CopyOnWriteArrayList<>();

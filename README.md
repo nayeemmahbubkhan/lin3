@@ -16,7 +16,6 @@ Small Spring Boot backend for `www.lin3.de` with a homepage dashboard, a simple 
 - Feed ingests multiple sources (Hacker News + GitHub Releases RSS).
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)
-- Optional PostgreSQL persistence via `postgres` profile
 
 ## Run locally
 
@@ -37,17 +36,6 @@ curl "http://localhost:8080/api/health/updates"
 curl "http://localhost:8080/api/health/meta"
 ```
 
-## Run with PostgreSQL
-
-Set database credentials (example values shown), then start with the `postgres` profile:
-
-```bash
-export TECHPULSE_DB_URL=jdbc:postgresql://localhost:5432/tech_pulse
-export TECHPULSE_DB_USER=techpulse
-export TECHPULSE_DB_PASSWORD=techpulse
-./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
-```
-
 ## Test
 
 ```bash
@@ -56,8 +44,7 @@ export TECHPULSE_DB_PASSWORD=techpulse
 
 ## Notes
 
-- Default mode keeps messages in memory. Use `postgres` profile for persistence.
-- Legacy env vars `LIN3_DB_URL`, `LIN3_DB_USER`, and `LIN3_DB_PASSWORD` are still accepted as fallback.
+- Contact messages are kept in memory for this MVP runtime.
 - `GET /api/updates` uses a short in-memory cache; `POST /api/updates/refresh` forces fresh regeneration.
 - Updates responses include cache metadata fields: `fromCache` and `cachedAt`.
 - Homepage reads `GET /api/health/meta` to show whether local LLM mode is enabled.
