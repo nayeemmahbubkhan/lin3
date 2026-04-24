@@ -2,6 +2,7 @@ package lin3.de.techpulse.controller;
 
 import lin3.de.techpulse.config.SecurityConfig;
 import lin3.de.techpulse.model.TechUpdate;
+import lin3.de.techpulse.model.UpdatesRefreshAllResponse;
 import lin3.de.techpulse.model.UpdatesResponse;
 import lin3.de.techpulse.service.UpdatesService;
 import org.junit.jupiter.api.Test;
@@ -81,6 +82,24 @@ class UpdatesControllerTest {
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("Security patch"))
 			.andExpect(jsonPath("$.items[0].action").value("Patch production systems"));
+	}
+
+	@Test
+	void refreshAllReturnsSummary() throws Exception {
+		UpdatesRefreshAllResponse response = new UpdatesRefreshAllResponse(
+			Instant.parse("2026-04-24T10:10:00Z"),
+			List.of(5, 8),
+			2,
+			true
+		);
+
+		when(updatesService.refreshAllCommonLimits(eq(List.of(5, 8)))).thenReturn(response);
+
+		mockMvc.perform(post("/api/updates/refresh-all"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.refreshedCount").value(2))
+			.andExpect(jsonPath("$.limits[0]").value(5))
+			.andExpect(jsonPath("$.sourceAvailable").value(true));
 	}
 }
 

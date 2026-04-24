@@ -144,5 +144,21 @@ class UpdatesServiceTest {
 		assertEquals(1, health.cache().entryCount());
 		assertEquals(1, health.cache().validEntryCount());
 	}
+
+	@Test
+	void refreshAllCommonLimitsNormalizesAndDeduplicates() {
+		AtomicInteger calls = new AtomicInteger();
+		TechUpdatesSource source = limit -> {
+			calls.incrementAndGet();
+			return List.of(new SourceUpdate("Item " + limit, "https://example.com/" + limit, Instant.parse("2026-04-20T10:00:00Z"), "Example"));
+		};
+
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300);
+		var result = updatesService.refreshAllCommonLimits(List.of(5, 8, 8, 99, 0));
+
+		assertEquals(3, result.refreshedCount());
+		assertEquals(List.of(5, 8, 20), result.limits());
+		assertEquals(3, calls.get());
+	}
 }
 

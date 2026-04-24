@@ -9,6 +9,7 @@ Small Spring Boot backend for `www.lin3.de` with a built-in contact form and a b
 - Contact API at `POST /api/contact`
 - Tech updates API at `GET /api/updates?limit=8`
 - Manual refresh API at `POST /api/updates/refresh?limit=8`
+- Refresh common limits API at `POST /api/updates/refresh-all`
 - Updates health API at `GET /api/health/updates`
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)
@@ -27,6 +28,7 @@ Tech feed endpoint example:
 ```bash
 curl "http://localhost:8080/api/updates?limit=5"
 curl -X POST "http://localhost:8080/api/updates/refresh?limit=5"
+curl -X POST "http://localhost:8080/api/updates/refresh-all"
 curl "http://localhost:8080/api/health/updates"
 ```
 
@@ -54,5 +56,6 @@ export TECHPULSE_DB_PASSWORD=techpulse
 - `GET /api/updates` uses a short in-memory cache; `POST /api/updates/refresh` forces fresh regeneration.
 - Updates responses include cache metadata fields: `fromCache` and `cachedAt`.
 - Optional Ollama summarization can be enabled with `techpulse.llm.enabled=true`.
+- Auto refresh can be enabled with `techpulse.updates.auto-refresh.enabled=true`.
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
 

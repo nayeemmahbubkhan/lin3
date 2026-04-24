@@ -3,6 +3,7 @@ package lin3.de.techpulse.service;
 import lin3.de.techpulse.model.SourceUpdate;
 import lin3.de.techpulse.model.UpdatesCacheHealth;
 import lin3.de.techpulse.model.UpdatesHealthResponse;
+import lin3.de.techpulse.model.UpdatesRefreshAllResponse;
 import lin3.de.techpulse.model.TechUpdate;
 import lin3.de.techpulse.model.UpdatesResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -78,6 +80,26 @@ public class UpdatesService {
 		);
 
 		return new UpdatesHealthResponse(Instant.now(), techUpdatesSource.getHealth(), cacheHealth);
+	}
+
+	public UpdatesRefreshAllResponse refreshAllCommonLimits(List<Integer> requestedLimits) {
+		List<Integer> normalizedLimits = requestedLimits == null ? List.of() : requestedLimits.stream()
+			.map(this::normalizeLimit)
+			.distinct()
+			.toList();
+
+		List<Integer> refreshed = new ArrayList<>();
+		for (Integer limit : normalizedLimits) {
+			refreshLatest(limit);
+			refreshed.add(limit);
+		}
+
+		return new UpdatesRefreshAllResponse(
+			Instant.now(),
+			refreshed,
+			refreshed.size(),
+			techUpdatesSource.getHealth().available()
+		);
 	}
 
 	private UpdatesResponse buildLatest(int limit) {
