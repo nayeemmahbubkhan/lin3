@@ -131,7 +131,8 @@ public class UpdatesService {
 			))
 			.toList();
 
-		return new UpdatesResponse(Instant.now(), "hacker-news", items, false, null);
+		String sourceName = techUpdatesSource.getHealth().name();
+		return new UpdatesResponse(Instant.now(), sourceName, items, false, null);
 	}
 
 	private boolean isExpired(Instant cachedAt) {

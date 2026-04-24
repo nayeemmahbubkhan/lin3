@@ -12,6 +12,7 @@ Small Spring Boot backend for `www.lin3.de` with a built-in contact form and a b
 - Refresh common limits API at `POST /api/updates/refresh-all`
 - Updates health API at `GET /api/health/updates`
 - `updates.html` includes a "Refresh now" button and source status badge.
+- Feed ingests multiple sources (Hacker News + GitHub Releases RSS).
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)
 - Optional PostgreSQL persistence via `postgres` profile
@@ -60,5 +61,6 @@ export TECHPULSE_DB_PASSWORD=techpulse
 - Optional Ollama summarization can be enabled with `techpulse.llm.enabled=true`.
 - Auto refresh can be enabled with `techpulse.updates.auto-refresh.enabled=true`.
 - Feed quality pipeline (dedup + relevance ranking + stale filtering) is enabled by default.
+- GitHub releases source URL is configurable via `techpulse.updates.github-rss-url`.
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
 
