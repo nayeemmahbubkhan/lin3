@@ -17,6 +17,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,6 +53,30 @@ class UpdatesControllerTest {
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("New release"))
 			.andExpect(jsonPath("$.items[0].action").value("Review changelog"));
+	}
+
+	@Test
+	void refreshReturnsUpdatesPayload() throws Exception {
+		UpdatesResponse response = new UpdatesResponse(
+			Instant.parse("2026-04-24T10:00:00Z"),
+			"hacker-news",
+			List.of(new TechUpdate(
+				"Security patch",
+				"https://example.com/security",
+				"Example",
+				Instant.parse("2026-04-24T09:30:00Z"),
+				"Short summary",
+				"Patch production systems"
+			))
+		);
+
+		when(updatesService.refreshLatest(eq(2))).thenReturn(response);
+
+		mockMvc.perform(post("/api/updates/refresh").param("limit", "2"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.source").value("hacker-news"))
+			.andExpect(jsonPath("$.items[0].title").value("Security patch"))
+			.andExpect(jsonPath("$.items[0].action").value("Patch production systems"));
 	}
 }
 

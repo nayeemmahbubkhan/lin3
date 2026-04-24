@@ -35,5 +35,30 @@ class UpdatesServiceTest {
 		assertEquals(1, response.items().size());
 		assertEquals("Summary for Release 1.0 launched", response.items().get(0).summary());
 	}
+
+	@Test
+	void refreshLatestUsesSamePipeline() {
+		TechUpdatesSource source = limit -> List.of(
+			new SourceUpdate("Release 2.0 launched", "https://example.com/release2", Instant.parse("2026-04-20T10:00:00Z"), "Example")
+		);
+
+		UpdatesSummarizer summarizer = new UpdatesSummarizer() {
+			@Override
+			public String summarize(SourceUpdate update) {
+				return "Summary for " + update.title();
+			}
+
+			@Override
+			public String nextAction(SourceUpdate update) {
+				return "Action for " + update.title();
+			}
+		};
+
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5);
+		var response = updatesService.refreshLatest(1);
+
+		assertEquals(1, response.items().size());
+		assertEquals("Summary for Release 2.0 launched", response.items().get(0).summary());
+	}
 }
 

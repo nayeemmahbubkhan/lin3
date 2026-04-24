@@ -44,6 +44,10 @@ public class UpdatesService {
 		return new UpdatesResponse(Instant.now(), "hacker-news", items);
 	}
 
+	public UpdatesResponse refreshLatest(Integer requestedLimit) {
+		return getLatest(requestedLimit);
+	}
+
 	private int normalizeLimit(Integer requestedLimit) {
 		if (requestedLimit == null || requestedLimit < 1) {
 			return Math.min(defaultLimit, MAX_LIMIT);
