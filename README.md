@@ -9,6 +9,7 @@ Small Spring Boot backend for `www.lin3.de` with a built-in contact form and a b
 - Contact API at `POST /api/contact`
 - Tech updates API at `GET /api/updates?limit=8`
 - Manual refresh API at `POST /api/updates/refresh?limit=8`
+- Updates health API at `GET /api/health/updates`
 - Basic spam trap (hidden `website` field)
 - In-memory message storage by default (no external DB required)
 - Optional PostgreSQL persistence via `postgres` profile
@@ -26,6 +27,7 @@ Tech feed endpoint example:
 ```bash
 curl "http://localhost:8080/api/updates?limit=5"
 curl -X POST "http://localhost:8080/api/updates/refresh?limit=5"
+curl "http://localhost:8080/api/health/updates"
 ```
 
 ## Run with PostgreSQL

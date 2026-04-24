@@ -1,6 +1,8 @@
 package lin3.de.techpulse.service;
 
 import lin3.de.techpulse.model.SourceUpdate;
+import lin3.de.techpulse.model.UpdatesCacheHealth;
+import lin3.de.techpulse.model.UpdatesHealthResponse;
 import lin3.de.techpulse.model.TechUpdate;
 import lin3.de.techpulse.model.UpdatesResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,6 +62,22 @@ public class UpdatesService {
 			cacheByLimit.put(limit, new CacheEntry(response, Instant.now()));
 		}
 		return response;
+	}
+
+	public UpdatesHealthResponse getHealth() {
+		int entryCount = cacheByLimit.size();
+		int validEntryCount = (int) cacheByLimit.values().stream()
+			.filter(entry -> !isExpired(entry.cachedAt()))
+			.count();
+
+		UpdatesCacheHealth cacheHealth = new UpdatesCacheHealth(
+			cacheEnabled,
+			cacheTtl.toSeconds(),
+			entryCount,
+			validEntryCount
+		);
+
+		return new UpdatesHealthResponse(Instant.now(), techUpdatesSource.getHealth(), cacheHealth);
 	}
 
 	private UpdatesResponse buildLatest(int limit) {

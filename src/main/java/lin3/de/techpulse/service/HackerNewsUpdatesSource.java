@@ -1,6 +1,7 @@
 package lin3.de.techpulse.service;
 
 import lin3.de.techpulse.model.SourceUpdate;
+import lin3.de.techpulse.model.UpdatesSourceHealth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -16,6 +17,10 @@ public class HackerNewsUpdatesSource implements TechUpdatesSource {
 
 	private final RestClient restClient;
 	private final String sourceUrl;
+	private volatile boolean available;
+	private volatile Instant lastCheckedAt;
+	private volatile Instant lastSuccessAt;
+	private volatile String lastError;
 
 	public HackerNewsUpdatesSource(RestClient.Builder restClientBuilder,
 		@Value("${techpulse.updates.source-url:https://hn.algolia.com/api/v1/search_by_date?tags=story}") String sourceUrl) {
@@ -31,11 +36,13 @@ public class HackerNewsUpdatesSource implements TechUpdatesSource {
 				.retrieve()
 				.body(Map.class);
 			if (payload == null) {
+				markFailure("Empty source response");
 				return fallbackItems();
 			}
 
 			Object hits = payload.get("hits");
 			if (!(hits instanceof List<?> hitList)) {
+				markFailure("Source payload missing hits");
 				return fallbackItems();
 			}
 
@@ -64,12 +71,34 @@ public class HackerNewsUpdatesSource implements TechUpdatesSource {
 
 			updates.sort(Comparator.comparing(SourceUpdate::publishedAt).reversed());
 			if (updates.isEmpty()) {
+				markFailure("No valid items from source");
 				return fallbackItems();
 			}
+			markSuccess();
 			return updates.stream().limit(limit).toList();
 		} catch (Exception ex) {
+			markFailure(ex.getClass().getSimpleName() + ": " + ex.getMessage());
 			return fallbackItems();
 		}
+	}
+
+	@Override
+	public UpdatesSourceHealth getHealth() {
+		return new UpdatesSourceHealth("hacker-news", available, lastCheckedAt, lastSuccessAt, lastError);
+	}
+
+	private void markSuccess() {
+		Instant now = Instant.now();
+		available = true;
+		lastCheckedAt = now;
+		lastSuccessAt = now;
+		lastError = null;
+	}
+
+	private void markFailure(String error) {
+		available = false;
+		lastCheckedAt = Instant.now();
+		lastError = error;
 	}
 
 	private String value(Map<?, ?> item, String... keys) {

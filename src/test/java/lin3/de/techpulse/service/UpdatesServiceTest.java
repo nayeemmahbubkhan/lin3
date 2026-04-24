@@ -1,6 +1,7 @@
 package lin3.de.techpulse.service;
 
 import lin3.de.techpulse.model.SourceUpdate;
+import lin3.de.techpulse.model.UpdatesSourceHealth;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -117,6 +118,31 @@ class UpdatesServiceTest {
 				return "Action for " + update.title();
 			}
 		};
+	}
+
+	@Test
+	void getHealthReturnsSourceAndCacheStats() {
+		TechUpdatesSource source = new TechUpdatesSource() {
+			@Override
+			public List<SourceUpdate> fetchLatest(int limit) {
+				return List.of(new SourceUpdate("Health item", "https://example.com/health", Instant.parse("2026-04-20T10:00:00Z"), "Example"));
+			}
+
+			@Override
+			public UpdatesSourceHealth getHealth() {
+				return new UpdatesSourceHealth("hacker-news", true, Instant.parse("2026-04-24T10:00:00Z"), Instant.parse("2026-04-24T09:59:00Z"), null);
+			}
+		};
+
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300);
+		updatesService.getLatest(1);
+
+		var health = updatesService.getHealth();
+		assertEquals("hacker-news", health.source().name());
+		assertTrue(health.source().available());
+		assertTrue(health.cache().enabled());
+		assertEquals(1, health.cache().entryCount());
+		assertEquals(1, health.cache().validEntryCount());
 	}
 }
 
