@@ -6,22 +6,26 @@
 	<title>Contact | Tech Pulse</title>
 	<style>
 		:root {
-			font-family: Arial, sans-serif;
-			color: #111827;
-			background: #f8fafc;
+			font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+			color: #e5e7eb;
+			background: #0b0f14;
+			--panel: #11161d;
+			--line: #2b3643;
+			--muted: #94a3b8;
+			--accent: #7dd3fc;
 		}
 		body {
 			margin: 0;
-			padding: 2rem 1rem;
+			padding: 1.5rem 1rem;
 			display: grid;
 			place-items: center;
 		}
 		main {
 			width: min(680px, 94vw);
-			background: white;
+			background: var(--panel);
 			padding: 2rem;
-			border-radius: 14px;
-			box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
+			border-radius: 8px;
+			border: 1px solid var(--line);
 		}
 		.nav {
 			display: flex;
@@ -32,30 +36,44 @@
 		.nav a {
 			text-decoration: none;
 			font-weight: 600;
-			color: #334155;
+			color: var(--muted);
 		}
 		.nav a.active {
-			color: #1d4ed8;
+			color: var(--accent);
 		}
 		h1 {
 			margin: 0 0 0.5rem;
+			font-size: 1.35rem;
 		}
 		p {
-			color: #475569;
+			color: var(--muted);
 			line-height: 1.5;
 		}
 		.card {
-			margin-top: 1rem;
+			margin: 1rem auto 0;
 			padding: 1rem;
-			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-			border: 1px solid #e2e8f0;
-			border-radius: 12px;
+			width: min(420px, 100%);
+			background: #0f141b;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			text-align: center;
+		}
+		.email-label {
+			display: block;
+			font-size: 0.86rem;
+			color: var(--muted);
+			margin-bottom: 0.2rem;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
 		}
 		.email {
-			font-size: 1.05rem;
-			font-weight: 600;
-			color: #1d4ed8;
+			font-size: 1rem;
+			font-weight: 500;
+			color: var(--accent);
 			text-decoration: none;
+		}
+		.email:hover {
+			text-decoration: underline;
 		}
 	</style>
 </head>
@@ -67,8 +85,9 @@
 	</nav>
 
 	<h1>Contact</h1>
-	<p>If you want to discuss the project, share feedback, or suggest a feature, feel free to reach out directly.</p>
+	<p>If you want to discuss a project or share feedback feel free to reach out directly.</p>
 	<div class="card">
+		<span class="email-label">Email</span>
 		<a class="email" href="mailto:nayeem.khan@hotmail.com">nayeem.khan@hotmail.com</a>
 	</div>
 </main>
