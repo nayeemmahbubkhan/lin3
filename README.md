@@ -25,6 +25,10 @@ Small Spring Boot backend for `www.lin3.de` with a homepage dashboard, a simple 
 
 Open `http://localhost:8080`.
 
+## Live deployment
+
+Cloud URL: `https://www.lin3.de`
+
 Tech feed endpoint example:
 
 ```bash
