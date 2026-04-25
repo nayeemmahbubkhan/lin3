@@ -8,7 +8,9 @@ public record UpdatesResponse(
 	String source,
 	List<TechUpdate> items,
 	boolean fromCache,
-	Instant cachedAt
+	Instant cachedAt,
+	boolean llmPending,
+	String llmMessage
 ) {
 }
 

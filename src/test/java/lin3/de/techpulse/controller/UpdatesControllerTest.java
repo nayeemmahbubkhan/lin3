@@ -51,6 +51,8 @@ class UpdatesControllerTest {
 				"Could require dependency updates in the next sprint."
 			)),
 			false,
+			null,
+			false,
 			null
 		);
 
@@ -78,6 +80,8 @@ class UpdatesControllerTest {
 				"Patch production systems",
 				"Production services may be exposed until patched."
 			)),
+			false,
+			null,
 			false,
 			null
 		);

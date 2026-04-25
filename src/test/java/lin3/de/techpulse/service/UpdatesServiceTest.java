@@ -40,7 +40,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "", 2200, 6);
 		var response = updatesService.getLatest(1);
 
 		assertEquals(1, response.items().size());
@@ -72,7 +72,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "", 2200, 6);
 		var response = updatesService.refreshLatest(1);
 
 		assertEquals(1, response.items().size());
@@ -90,7 +90,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "", 2200, 6);
 
 		var first = updatesService.getLatest(1);
 		var second = updatesService.getLatest(1);
@@ -110,7 +110,7 @@ class UpdatesServiceTest {
 		};
 
 		UpdatesSummarizer summarizer = simpleSummarizer();
-		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, true, 300, true, "security,release,ai", "", 2200, 6);
 
 		updatesService.getLatest(1);
 		var refreshed = updatesService.refreshLatest(1);
@@ -152,7 +152,7 @@ class UpdatesServiceTest {
 			}
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "", 2200, 6);
 		updatesService.getLatest(1);
 
 		var health = updatesService.getHealth();
@@ -171,7 +171,7 @@ class UpdatesServiceTest {
 			return List.of(new SourceUpdate("Item " + limit, "https://example.com/" + limit, Instant.parse("2026-04-20T10:00:00Z"), "Example"));
 		};
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, true, 300, true, "security,release,ai", "", 2200, 6);
 		var result = updatesService.refreshAllCommonLimits(List.of(5, 8, 8, 99, 0));
 
 		assertEquals(3, result.refreshedCount());
@@ -189,7 +189,7 @@ class UpdatesServiceTest {
 			new SourceUpdate("AI platform launch for cloud workloads", "https://example.com/post/4", Instant.now().minus(Duration.ofHours(2)), "Example")
 		);
 
-		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, false, 300, true, "security,release,ai,cloud,database", "");
+		UpdatesService updatesService = new UpdatesService(source, simpleSummarizer(), 5, false, 300, true, "security,release,ai,cloud,database", "", 2200, 6);
 		var response = updatesService.getLatest(3);
 
 		assertEquals(2, response.items().size());
@@ -213,7 +213,9 @@ class UpdatesServiceTest {
 			300,
 			true,
 			"",
-			"hacker-news:0.4,github-releases:1.8"
+			"hacker-news:0.4,github-releases:1.8",
+			2200,
+			6
 		);
 
 		var response = updatesService.getLatest(2);
@@ -221,6 +223,48 @@ class UpdatesServiceTest {
 		assertEquals(2, response.items().size());
 		assertEquals("https://example.com/gh", response.items().get(0).url());
 		assertEquals("https://example.com/hn", response.items().get(1).url());
+	}
+
+	@Test
+	void getLatestReturnsPendingMessageWhenLlmIsSlow() {
+		TechUpdatesSource source = limit -> List.of(
+			new SourceUpdate("Slow LLM item", "https://example.com/slow", Instant.parse("2026-04-20T10:00:00Z"), "Example")
+		);
+
+		UpdatesSummarizer slowSummarizer = new UpdatesSummarizer() {
+			@Override
+			public String summarize(SourceUpdate update) {
+				sleep(300);
+				return "Done summary";
+			}
+
+			@Override
+			public String nextAction(SourceUpdate update) {
+				sleep(300);
+				return "Done action";
+			}
+
+			@Override
+			public String footerInsight(SourceUpdate update) {
+				sleep(300);
+				return "Done footer";
+			}
+		};
+
+		UpdatesService updatesService = new UpdatesService(source, slowSummarizer, 5, false, 300, true, "security,release,ai", "", 50, 4);
+		var response = updatesService.getLatest(1);
+
+		assertTrue(response.llmPending());
+		assertNotNull(response.llmMessage());
+		assertTrue(response.items().get(0).summary().toLowerCase().contains("still"));
+	}
+
+	private void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+		}
 	}
 }
 

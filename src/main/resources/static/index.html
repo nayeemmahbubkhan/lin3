@@ -274,7 +274,10 @@
 			const freshness = data.fromCache
 				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
 				: 'freshly generated';
-			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString() + ' | ' + freshness;
+			const llmNotice = data.llmPending
+				? (data.llmMessage || 'Local LLM is still generating insights. Showing available updates now.')
+				: '';
+			meta.textContent = 'Source: ' + data.source + ' | Generated: ' + new Date(data.generatedAt).toLocaleString() + ' | ' + freshness + (llmNotice ? ' | ' + llmNotice : '');
 			list.innerHTML = '';
 
 			if (!data.items || data.items.length === 0) {

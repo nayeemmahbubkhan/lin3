@@ -34,7 +34,7 @@ class OllamaUpdatesSummarizerTest {
 			fallback,
 			false,
 			"http://localhost:11434",
-			"qwen2.5:7b-instruct"
+			"gemma4:latest"
 		);
 
 		assertEquals(fallback.summarize(update), summarizer.summarize(update));
@@ -65,7 +65,7 @@ class OllamaUpdatesSummarizerTest {
 			fallback,
 			true,
 			"http://localhost:11434",
-			"qwen2.5:7b-instruct"
+			"gemma4:latest"
 		);
 
 		assertEquals("LLM summary", summarizer.summarize(update));
@@ -94,7 +94,7 @@ class OllamaUpdatesSummarizerTest {
 			fallback,
 			true,
 			"http://localhost:11434",
-			"qwen2.5:7b-instruct"
+			"gemma4:latest"
 		);
 
 		assertEquals(fallback.summarize(update), summarizer.summarize(update));

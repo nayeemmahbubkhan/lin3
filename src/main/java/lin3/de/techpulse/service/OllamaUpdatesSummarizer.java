@@ -25,7 +25,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		RuleBasedUpdatesSummarizer fallback,
 		@Value("${techpulse.llm.enabled:false}") boolean enabled,
 		@Value("${techpulse.llm.base-url:http://localhost:11434}") String baseUrl,
-		@Value("${techpulse.llm.model:qwen2.5:7b-instruct}") String model
+		@Value("${techpulse.llm.model:gemma4:latest}") String model
 	) {
 		this.restClient = restClientBuilder.baseUrl(baseUrl).build();
 		this.promptBuilder = promptBuilder;
