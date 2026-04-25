@@ -29,6 +29,12 @@ Open `http://localhost:8080`.
 
 Cloud URL: `https://www.lin3.de`
 
+Server-side monitoring (no Google Analytics):
+
+- Request hits are counted from Nginx access logs in CloudWatch (default: `/techpulse/prod/nginx/access`).
+- Daily/weekly dashboards and alarms are provisioned by `infra/cloudformation/techpulse-single-ec2.yml`.
+- Alerts are sent by SNS email after subscription confirmation.
+
 Tech feed endpoint example:
 
 ```bash
@@ -59,4 +65,14 @@ curl "http://localhost:8080/api/health/meta"
 - Multi-repo GitHub releases ingestion can be configured via `techpulse.updates.github-rss-urls` (comma-separated Atom feed URLs).
 - Ranking source weights are configurable via `techpulse.updates.source-weights` (for example `hacker-news:1.0,github-releases:1.2`).
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
+
+## AWS cost estimate (current setup)
+
+Approximate monthly range in `eu-central-1` for this stack (single EC2 + EIP + Route53 + HTTPS + monitoring):
+
+- Typical low traffic: about `EUR 14-22/month`
+- Main fixed parts: EC2 `t3.micro`, 20 GiB EBS, Route53 hosted zone, health check, CloudWatch dashboard/alarms
+- Main variable part: outbound internet transfer and log ingestion volume
+
+For a detailed breakdown and tunable parameters, see `infra/cloudformation/README.md`.
 
