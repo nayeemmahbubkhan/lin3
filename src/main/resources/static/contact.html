@@ -54,6 +54,18 @@
 		.nav a.active::after {
 			color: var(--accent);
 		}
+		.nav a:hover {
+			color: var(--line);
+		}
+		.nav a:hover::before,
+		.nav a:hover::after {
+			color: var(--line);
+		}
+		.nav a.active:hover,
+		.nav a.active:hover::before,
+		.nav a.active:hover::after {
+			color: var(--accent);
+		}
 		h1 {
 			margin: 0 0 0.35rem;
 			font-size: 1.2rem;
@@ -91,7 +103,8 @@
 			text-decoration: none;
 		}
 		.email:hover {
-			text-decoration: underline;
+			color: var(--muted);
+			text-decoration: none;
 		}
 	</style>
 </head>
