@@ -4,115 +4,15 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Contact | Tech Pulse</title>
-	<style>
-		:root {
-			font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-			color: #ffffff;
-			background: #000000;
-			--panel: #000000;
-			--line: #9ca3af;
-			--muted: #9ca3af;
-			--accent: #9ca3af;
-		}
-		body {
-			margin: 0;
-			padding: 1.25rem 0.9rem;
-			display: grid;
-			place-items: center;
-		}
-		main {
-			width: min(680px, 94vw);
-			background: var(--panel);
-			padding: 1.4rem;
-			border-radius: 6px;
-			border: 1px solid var(--line);
-		}
-		.nav {
-			display: flex;
-			justify-content: flex-end;
-			gap: 0.6rem;
-			margin-bottom: 0.7rem;
-		}
-		.nav a {
-			text-decoration: none;
-			font-weight: 600;
-			color: var(--muted);
-			font-size: 0.9rem;
-		}
-		.nav a::before {
-			content: "[";
-			color: var(--line);
-		}
-		.nav a::after {
-			content: "]";
-			color: var(--line);
-		}
-		.nav a.active {
-			color: var(--accent);
-		}
-		.nav a.active::before,
-		.nav a.active::after {
-			color: var(--accent);
-		}
-		.nav a:hover {
-			color: var(--line);
-		}
-		.nav a:hover::before,
-		.nav a:hover::after {
-			color: var(--line);
-		}
-		.nav a.active:hover,
-		.nav a.active:hover::before,
-		.nav a.active:hover::after {
-			color: var(--accent);
-		}
-		h1 {
-			margin: 0 0 0.35rem;
-			font-size: 1.2rem;
-		}
-		h1::before {
-			content: "> ";
-			color: var(--muted);
-		}
-		p {
-			color: var(--muted);
-			line-height: 1.45;
-			font-size: 0.9rem;
-		}
-		.card {
-			margin: 0.75rem auto 0;
-			padding: 0.75rem;
-			width: min(380px, 100%);
-			background: #000000;
-			border: 1px solid var(--line);
-			border-radius: 6px;
-			text-align: center;
-		}
-		.email-label {
-			display: block;
-			font-size: 0.78rem;
-			color: var(--muted);
-			margin-bottom: 0.18rem;
-			text-transform: uppercase;
-			letter-spacing: 0.04em;
-		}
-		.email {
-			font-size: 0.92rem;
-			font-weight: 500;
-			color: var(--accent);
-			text-decoration: none;
-		}
-		.email:hover {
-			color: var(--muted);
-			text-decoration: none;
-		}
-	</style>
+	<link rel="stylesheet" href="/contact.css">
+	<script src="/theme-toggle.js" defer></script>
 </head>
 <body>
 <main>
 	<nav class="nav" aria-label="Primary">
 		<a href="/">Home</a>
 		<a href="/contact.html" class="active">Contact</a>
+		<button type="button" class="theme-toggle" data-theme-toggle>Theme: Dark</button>
 	</nav>
 
 	<h1>Contact</h1>

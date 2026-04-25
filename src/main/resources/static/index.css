@@ -1,0 +1,258 @@
+:root {
+	font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	--text: #ffffff;
+	--bg: #000000;
+	--panel: #000000;
+	--line: #9ca3af;
+	--muted: #9ca3af;
+	--accent: #9ca3af;
+	color: var(--text);
+	background: var(--bg);
+}
+
+html[data-theme="light"] {
+	--text: #111827;
+	--bg: #ffffff;
+	--panel: #ffffff;
+	--line: #6b7280;
+	--muted: #4b5563;
+	--accent: #374151;
+}
+body {
+	margin: 0;
+	padding: 1.25rem 0.9rem;
+	display: grid;
+	place-items: center;
+	background: var(--bg);
+	color: var(--text);
+}
+main {
+	width: min(900px, 96vw);
+	background: var(--panel);
+	padding: 1.25rem;
+	border-radius: 6px;
+	border: 1px solid var(--line);
+}
+.nav {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 0.6rem;
+	margin-bottom: 0.6rem;
+}
+.nav a {
+	text-decoration: none;
+	font-weight: 600;
+	color: var(--muted);
+}
+.nav a::before {
+	content: "[";
+	color: var(--line);
+}
+.nav a::after {
+	content: "]";
+	color: var(--line);
+}
+.nav a.active {
+	color: var(--accent);
+}
+.nav a.active::before,
+.nav a.active::after {
+	color: var(--accent);
+}
+.nav a:hover {
+	color: var(--line);
+}
+.nav a:hover::before,
+.nav a:hover::after {
+	color: var(--line);
+}
+.nav a.active:hover,
+.nav a.active:hover::before,
+.nav a.active:hover::after {
+	color: var(--accent);
+}
+.theme-toggle {
+	background: transparent;
+	color: var(--muted);
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	padding: 0.24rem 0.55rem;
+	font: inherit;
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+.theme-toggle:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+h1 {
+	margin-top: 0;
+	margin-bottom: 0.2rem;
+	text-align: center;
+	font-size: 1.2rem;
+}
+h1::before {
+	content: "> ";
+	color: var(--muted);
+}
+h1::after {
+	content: " _";
+	color: var(--muted);
+}
+.subtitle {
+	margin: 0 0 0.55rem;
+	color: var(--muted);
+	font-size: 0.86rem;
+	text-align: center;
+}
+.toolbar {
+	display: flex;
+	gap: 0.55rem;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 0.65rem;
+}
+button {
+	background: transparent;
+	color: var(--text);
+	border: 1px solid var(--line);
+	padding: 0.45rem 0.75rem;
+	border-radius: 6px;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+button:hover {
+	border-color: var(--accent);
+}
+button:disabled {
+	opacity: 0.7;
+	cursor: wait;
+}
+.badge {
+	padding: 0.25rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	border: 1px solid var(--line);
+	background: transparent;
+}
+.badge.ok {
+	color: var(--accent);
+}
+.badge.down {
+	color: var(--text);
+	border-style: dashed;
+}
+.badge.unknown {
+	color: var(--muted);
+	border-style: dotted;
+}
+#meta {
+	color: var(--muted);
+	margin: 0 0 0.15rem;
+	font-size: 0.84rem;
+}
+#meta::before {
+	content: "$ ";
+	color: var(--line);
+}
+
+.sections {
+	display: grid;
+	gap: 0.8rem;
+}
+.section {
+	padding-top: 0.15rem;
+}
+.section-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 0.35rem;
+}
+.section-head h2 {
+	font-size: 0.9rem;
+	margin: 0;
+}
+.section-head h2::before {
+	content: ":: ";
+	color: var(--line);
+}
+.section-head .hint {
+	font-size: 0.75rem;
+	color: var(--muted);
+}
+.grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.card {
+	background: var(--panel);
+	padding: 0.72rem;
+	border-radius: 6px;
+	border: 1px solid var(--line);
+}
+.card.security,
+.card.release,
+.card.signal {
+	border-left: 3px solid var(--accent);
+}
+.card-label {
+	display: inline-block;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	margin-bottom: 0.4rem;
+	padding: 0.2rem 0.5rem;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	background: transparent;
+	color: var(--muted);
+}
+.card-label.security,
+.card-label.release,
+.card-label.signal {
+	color: var(--accent);
+}
+.card h3 {
+	margin: 0 0 0.2rem;
+	font-size: 0.95rem;
+}
+.item-summary {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+.item-meta {
+	font-size: 0.82rem;
+	color: var(--muted);
+}
+.item-action {
+	font-weight: 600;
+	color: var(--text);
+	font-size: 0.9rem;
+}
+.item-footer {
+	margin-top: 0.28rem;
+	padding-top: 0.28rem;
+	font-size: 0.82rem;
+	color: var(--muted);
+	border-top: 1px dashed var(--line);
+}
+.item-footer strong {
+	color: var(--text);
+}
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+a:hover {
+	color: var(--muted);
+}
+
