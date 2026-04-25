@@ -38,7 +38,19 @@
 			font-weight: 600;
 			color: var(--muted);
 		}
+		.nav a::before {
+			content: "[";
+			color: var(--line);
+		}
+		.nav a::after {
+			content: "]";
+			color: var(--line);
+		}
 		.nav a.active {
+			color: var(--accent);
+		}
+		.nav a.active::before,
+		.nav a.active::after {
 			color: var(--accent);
 		}
 		h1 {
@@ -46,6 +58,14 @@
 			margin-bottom: 0.2rem;
 			text-align: center;
 			font-size: 1.2rem;
+		}
+		h1::before {
+			content: "> ";
+			color: var(--muted);
+		}
+		h1::after {
+			content: " _";
+			color: var(--muted);
 		}
 		.subtitle {
 			margin: 0 0 0.55rem;
@@ -102,6 +122,10 @@
 			margin: 0 0 0.15rem;
 			font-size: 0.84rem;
 		}
+		#meta::before {
+			content: "$ ";
+			color: var(--line);
+		}
 
 		.sections {
 			display: grid;
@@ -119,6 +143,10 @@
 		.section-head h2 {
 			font-size: 0.9rem;
 			margin: 0;
+		}
+		.section-head h2::before {
+			content: ":: ";
+			color: var(--line);
 		}
 		.section-head .hint {
 			font-size: 0.75rem;

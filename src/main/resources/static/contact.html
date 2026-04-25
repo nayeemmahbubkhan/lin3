@@ -39,12 +39,28 @@
 			color: var(--muted);
 			font-size: 0.9rem;
 		}
+		.nav a::before {
+			content: "[";
+			color: var(--line);
+		}
+		.nav a::after {
+			content: "]";
+			color: var(--line);
+		}
 		.nav a.active {
+			color: var(--accent);
+		}
+		.nav a.active::before,
+		.nav a.active::after {
 			color: var(--accent);
 		}
 		h1 {
 			margin: 0 0 0.35rem;
 			font-size: 1.2rem;
+		}
+		h1::before {
+			content: "> ";
+			color: var(--muted);
 		}
 		p {
 			color: var(--muted);
