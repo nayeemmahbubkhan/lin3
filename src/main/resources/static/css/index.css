@@ -174,7 +174,9 @@ button:disabled {
 	margin-bottom: 0.35rem;
 }
 .section-head h2 {
-	font-size: 0.9rem;
+	font-size: 0.94rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
 	margin: 0;
 }
 .section-head h2::before {
@@ -184,6 +186,16 @@ button:disabled {
 .section-head .hint {
 	font-size: 0.75rem;
 	color: var(--muted);
+}
+.section-controls {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 0.45rem;
+}
+.load-more-btn {
+	padding: 0.35rem 0.62rem;
+	font-size: 0.8rem;
+	font-weight: 600;
 }
 .grid {
 	display: grid;
@@ -221,9 +233,14 @@ button:disabled {
 }
 .card h3 {
 	margin: 0 0 0.2rem;
-	font-size: 0.95rem;
+	font-size: 0.98rem;
+	line-height: 1.35;
 }
 .item-summary {
+	font-size: 0.88rem;
+	line-height: 1.45;
+	color: var(--muted);
+	margin-bottom: 0.4rem;
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
@@ -237,6 +254,8 @@ button:disabled {
 	font-weight: 600;
 	color: var(--text);
 	font-size: 0.9rem;
+	border-left: 2px solid var(--line);
+	padding-left: 0.45rem;
 }
 .item-footer {
 	margin-top: 0.28rem;
@@ -254,6 +273,20 @@ a {
 }
 a:hover {
 	color: var(--muted);
+}
+.link-btn {
+	display: inline-block;
+	font-size: 0.8rem;
+	font-weight: 700;
+	padding: 0.28rem 0.55rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+.link-btn:hover {
+	border-color: var(--accent);
+	color: var(--text);
 }
 
 @media (max-width: 640px) {
@@ -284,6 +317,14 @@ a:hover {
 
 	.grid {
 		grid-template-columns: 1fr;
+	}
+
+	.section-controls {
+		justify-content: stretch;
+	}
+
+	.load-more-btn {
+		width: 100%;
 	}
 }
 
