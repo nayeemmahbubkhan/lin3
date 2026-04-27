@@ -32,6 +32,7 @@ Cloud URL: `https://www.lin3.de`
 Server-side monitoring (no Google Analytics):
 
 - Request hits are counted from Nginx access logs in CloudWatch (default: `/techpulse/prod/nginx/access`).
+- Dashboard shows `raw`, `non-healthcheck`, and `likely-user` hit metrics to avoid Route53 health-check noise.
 - Daily/weekly dashboards and alarms are provisioned by `infra/cloudformation/techpulse-single-ec2.yml`.
 - Alerts are sent by SNS email after subscription confirmation.
 
