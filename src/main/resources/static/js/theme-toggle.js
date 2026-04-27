@@ -26,8 +26,11 @@
 	function updateToggleText(theme) {
 		const nextTheme = theme === THEME_DARK ? THEME_LIGHT : THEME_DARK;
 		document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-			button.textContent = `Theme: ${theme === THEME_DARK ? 'Dark' : 'Light'}`;
-			button.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
+			const currentLabel = theme === THEME_DARK ? 'Dark' : 'Light';
+			const nextLabel = nextTheme === THEME_DARK ? 'Dark' : 'Light';
+			button.textContent = theme === THEME_DARK ? 'D' : 'L';
+			button.setAttribute('aria-label', `Current theme: ${currentLabel}. Switch to ${nextLabel}.`);
+			button.setAttribute('title', `Theme: ${currentLabel} (click for ${nextLabel})`);
 		});
 	}
 

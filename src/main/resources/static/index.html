@@ -11,15 +11,24 @@
 <body>
 <main>
 	<nav class="nav" aria-label="Primary">
-		<a href="/" class="active">Home</a>
-		<a href="/contact.html">Contact</a>
-		<button type="button" class="theme-toggle" data-theme-toggle>Theme: Dark</button>
+		<a href="/" class="active" aria-label="Home" title="Home"><span class="nav-sign" aria-hidden="true">H</span></a>
+		<a href="/contact.html" aria-label="Contact" title="Contact"><span class="nav-sign" aria-hidden="true">@</span></a>
+		<button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme" title="Theme">D</button>
 	</nav>
 	<h1>lin3 Tech Pulse Briefing</h1>
 	<p id="subtitle" class="subtitle">Building the line three live engineering briefing...</p>
 	<div class="toolbar">
-		<button id="refreshBtn" type="button">Refresh feed</button>
-		<span id="sourceBadge" class="badge unknown">Source: checking...</span>
+		<span id="sourceBadge" class="badge unknown">Feed source: checking...</span>
+		<button
+			id="refreshBtn"
+			type="button"
+			class="refresh-icon-btn"
+			aria-label="Refresh feed"
+			title="Refresh latest updates"
+			data-hint="Refresh feed"
+		>
+			↻
+		</button>
 	</div>
 	<p id="meta">Loading latest updates...</p>
 	<div id="list" class="sections"></div>
@@ -183,7 +192,7 @@
 			const response = await fetch('/api/updates?limit=20');
 			const data = await response.json();
 			const itemCount = Array.isArray(data.items) ? data.items.length : 0;
-			subtitle.textContent = `Live brief: ${itemCount} high-signal updates from ${data.source}. Showing ${INITIAL_ITEMS_PER_GROUP} per lane with load more.`;
+			subtitle.textContent = `Live brief: ${itemCount} high-signal updates from ${data.source}.`;
 			const freshness = data.fromCache
 				? 'cached at ' + new Date(data.cachedAt).toLocaleString()
 				: 'freshly generated';
@@ -218,26 +227,26 @@
 			const health = await response.json();
 			if (health.source && health.source.available) {
 				sourceBadge.className = 'badge ok';
-				sourceBadge.textContent = 'Source: available';
+				sourceBadge.textContent = 'Feed source: online';
 			} else {
 				sourceBadge.className = 'badge down';
-				sourceBadge.textContent = 'Source: unavailable';
+				sourceBadge.textContent = 'Feed source: offline';
 			}
 		} catch (error) {
 			sourceBadge.className = 'badge unknown';
-			sourceBadge.textContent = 'Source: unknown';
+			sourceBadge.textContent = 'Feed source: unknown';
 		}
 	}
 
 	async function refreshNow() {
 		refreshBtn.disabled = true;
-		refreshBtn.textContent = 'Refreshing feed...';
+		refreshBtn.classList.add('is-loading');
 		try {
 			await fetch('/api/updates/refresh-all', { method: 'POST' });
 			await Promise.all([loadUpdates(), loadHealth()]);
 		} finally {
+			refreshBtn.classList.remove('is-loading');
 			refreshBtn.disabled = false;
-			refreshBtn.textContent = 'Refresh feed';
 		}
 	}
 
