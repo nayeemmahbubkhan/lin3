@@ -128,3 +128,23 @@ p {
 	text-decoration: none;
 }
 
+@media (max-width: 640px) {
+	body {
+		padding: 0.7rem;
+	}
+
+	main {
+		width: 100%;
+		padding: 1rem;
+	}
+
+	.nav {
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.card {
+		width: 100%;
+	}
+}
+

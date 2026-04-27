@@ -256,3 +256,34 @@ a:hover {
 	color: var(--muted);
 }
 
+@media (max-width: 640px) {
+	body {
+		padding: 0.7rem;
+	}
+
+	main {
+		width: 100%;
+		padding: 0.9rem;
+	}
+
+	.nav {
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.toolbar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.toolbar button,
+	.toolbar .badge {
+		width: 100%;
+		text-align: center;
+	}
+
+	.grid {
+		grid-template-columns: 1fr;
+	}
+}
+
