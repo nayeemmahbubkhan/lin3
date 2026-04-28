@@ -9,5 +9,7 @@ public interface UpdatesSummarizer {
 	String nextAction(SourceUpdate update);
 
 	String footerInsight(SourceUpdate update);
+
+	String didYouKnow(SourceUpdate update);
 }
 

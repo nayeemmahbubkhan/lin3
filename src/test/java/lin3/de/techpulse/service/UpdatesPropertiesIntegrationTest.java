@@ -59,6 +59,7 @@ class UpdatesPropertiesIntegrationTest {
 		given(compositeTechUpdatesSource.getHealth()).willReturn(new UpdatesSourceHealth("multi-source", true, now, now, null));
 		given(updatesSummarizer.summarize(org.mockito.ArgumentMatchers.any(SourceUpdate.class))).willAnswer(invocation -> "Summary for " + invocation.getArgument(0, SourceUpdate.class).title());
 		given(updatesSummarizer.nextAction(org.mockito.ArgumentMatchers.any(SourceUpdate.class))).willReturn("Review");
+		given(updatesSummarizer.didYouKnow(org.mockito.ArgumentMatchers.any(SourceUpdate.class))).willReturn("Did you know?");
 
 		var response = updatesService.getLatest(2);
 

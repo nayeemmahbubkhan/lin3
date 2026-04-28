@@ -25,6 +25,50 @@ Small Spring Boot backend for `www.lin3.de` with a homepage dashboard, a simple 
 
 Open `http://localhost:8080`.
 
+## Run local LLM (Ollama via Docker)
+
+1) Start Ollama in Docker (uses existing `ollama` container if present):
+
+```bash
+docker ps --format '{{.Names}}' | grep -qx 'ollama' || \
+docker run -d --name ollama -p 11434:11434 ollama/ollama
+```
+
+2) Pull a lightweight model for local testing (recommended on laptops):
+
+```bash
+docker exec ollama ollama pull llama3.2:1b
+```
+
+3) Optional: pull the default configured model from `application.properties`:
+
+```bash
+docker exec ollama ollama pull gemma4:latest
+```
+
+4) Verify Ollama is reachable and returns output:
+
+```bash
+curl -s http://localhost:11434/api/tags
+curl -s http://localhost:11434/api/generate -d '{"model":"llama3.2:1b","prompt":"Reply with exactly: ollama-ok","stream":false}'
+```
+
+5) Start the app with local LLM enabled:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--techpulse.llm.enabled=true --techpulse.llm.base-url=http://localhost:11434 --techpulse.llm.model=llama3.2:1b"
+```
+
+6) Validate from app endpoints:
+
+```bash
+curl -s http://localhost:8080/api/health/meta
+curl -s -X POST "http://localhost:8080/api/updates/refresh-all"
+curl -s "http://localhost:8080/api/updates?limit=5"
+```
+
+Tip: if `gemma4:latest` fails on low-memory machines, keep using `llama3.2:1b` for local verification.
+
 ## Live deployment
 
 Cloud URL: `https://www.lin3.de`
@@ -66,14 +110,3 @@ curl "http://localhost:8080/api/health/meta"
 - Multi-repo GitHub releases ingestion can be configured via `techpulse.updates.github-rss-urls` (comma-separated Atom feed URLs).
 - Ranking source weights are configurable via `techpulse.updates.source-weights` (for example `hacker-news:1.0,github-releases:1.2`).
 - Integrations for AI/Kafka/Elasticsearch are disabled by default in `src/main/resources/application.properties`.
-
-## AWS cost estimate (current setup)
-
-Approximate monthly range in `eu-central-1` for this stack (single EC2 + EIP + Route53 + HTTPS + monitoring):
-
-- Typical low traffic: about `EUR 14-22/month`
-- Main fixed parts: EC2 `t3.micro`, 20 GiB EBS, Route53 hosted zone, health check, CloudWatch dashboard/alarms
-- Main variable part: outbound internet transfer and log ingestion volume
-
-For a detailed breakdown and tunable parameters, see `infra/cloudformation/README.md`.
-

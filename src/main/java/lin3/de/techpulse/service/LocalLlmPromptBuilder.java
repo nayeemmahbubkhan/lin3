@@ -31,5 +31,13 @@ public class LocalLlmPromptBuilder {
 			+ "Source: " + update.source() + "\n"
 			+ "URL: " + update.url();
 	}
+
+	public String buildDidYouKnowPrompt(SourceUpdate update) {
+		return "Write one concise insight line for this tech update (max 22 words)."
+			+ " Do not add labels like 'Did you know?' or 'Prediction:'.\n"
+			+ "Title: " + update.title() + "\n"
+			+ "Source: " + update.source() + "\n"
+			+ "URL: " + update.url();
+	}
 }
 

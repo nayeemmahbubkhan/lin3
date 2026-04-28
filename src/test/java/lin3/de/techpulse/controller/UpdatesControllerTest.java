@@ -47,7 +47,8 @@ class UpdatesControllerTest {
 				Instant.parse("2026-04-24T09:00:00Z"),
 				"Short summary",
 				"Review changelog",
-				"Could require dependency updates in the next sprint."
+				"Could require dependency updates in the next sprint.",
+				"Did you know? Early adopters usually surface integration gaps first."
 			)),
 			false,
 			null,
@@ -62,6 +63,7 @@ class UpdatesControllerTest {
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("New release"))
 			.andExpect(jsonPath("$.items[0].action").value("Review changelog"))
+			.andExpect(jsonPath("$.items[0].didYouKnow").value("Did you know? Early adopters usually surface integration gaps first."))
 			.andExpect(jsonPath("$.items[0].footerInsight").value("Could require dependency updates in the next sprint."));
 	}
 
@@ -77,7 +79,8 @@ class UpdatesControllerTest {
 				Instant.parse("2026-04-24T09:30:00Z"),
 				"Short summary",
 				"Patch production systems",
-				"Production services may be exposed until patched."
+				"Production services may be exposed until patched.",
+				"Prediction: delayed patching windows become the largest source of avoidable incidents."
 			)),
 			false,
 			null,
@@ -92,6 +95,7 @@ class UpdatesControllerTest {
 			.andExpect(jsonPath("$.source").value("hacker-news"))
 			.andExpect(jsonPath("$.items[0].title").value("Security patch"))
 			.andExpect(jsonPath("$.items[0].action").value("Patch production systems"))
+			.andExpect(jsonPath("$.items[0].didYouKnow").value("Prediction: delayed patching windows become the largest source of avoidable incidents."))
 			.andExpect(jsonPath("$.items[0].footerInsight").value("Production services may be exposed until patched."));
 	}
 

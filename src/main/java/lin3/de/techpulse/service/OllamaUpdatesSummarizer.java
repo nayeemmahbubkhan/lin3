@@ -73,6 +73,19 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		}
 	}
 
+	@Override
+	public String didYouKnow(SourceUpdate update) {
+		if (!enabled) {
+			return fallback.didYouKnow(update);
+		}
+		try {
+			String generated = generate(promptBuilder.buildDidYouKnowPrompt(update));
+			return generated.isBlank() ? fallback.didYouKnow(update) : generated;
+		} catch (Exception ex) {
+			return fallback.didYouKnow(update);
+		}
+	}
+
 	private String generate(String prompt) {
 		Map<String, Object> request = Map.of(
 			"model", model,

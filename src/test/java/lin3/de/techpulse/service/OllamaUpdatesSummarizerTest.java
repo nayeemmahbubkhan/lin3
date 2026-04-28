@@ -40,6 +40,7 @@ class OllamaUpdatesSummarizerTest {
 		assertEquals(fallback.summarize(update), summarizer.summarize(update));
 		assertEquals(fallback.nextAction(update), summarizer.nextAction(update));
 		assertEquals(fallback.footerInsight(update), summarizer.footerInsight(update));
+		assertEquals(fallback.didYouKnow(update), summarizer.didYouKnow(update));
 	}
 
 	@Test
@@ -58,6 +59,9 @@ class OllamaUpdatesSummarizerTest {
 		server.expect(requestTo("http://localhost:11434/api/generate"))
 			.andExpect(method(HttpMethod.POST))
 			.andRespond(withSuccess("{\"response\":\"LLM footer insight\"}", MediaType.APPLICATION_JSON));
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess("{\"response\":\"Did you know? LLM context\"}", MediaType.APPLICATION_JSON));
 
 		OllamaUpdatesSummarizer summarizer = new OllamaUpdatesSummarizer(
 			builder,
@@ -71,6 +75,7 @@ class OllamaUpdatesSummarizerTest {
 		assertEquals("LLM summary", summarizer.summarize(update));
 		assertEquals("LLM action", summarizer.nextAction(update));
 		assertEquals("LLM footer insight", summarizer.footerInsight(update));
+		assertEquals("Did you know? LLM context", summarizer.didYouKnow(update));
 		server.verify();
 	}
 
@@ -81,6 +86,9 @@ class OllamaUpdatesSummarizerTest {
 		RestClient.Builder builder = RestClient.builder();
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withServerError());
 		server.expect(requestTo("http://localhost:11434/api/generate"))
 			.andExpect(method(HttpMethod.POST))
 			.andRespond(withServerError());
@@ -99,6 +107,7 @@ class OllamaUpdatesSummarizerTest {
 
 		assertEquals(fallback.summarize(update), summarizer.summarize(update));
 		assertEquals(fallback.footerInsight(update), summarizer.footerInsight(update));
+		assertEquals(fallback.didYouKnow(update), summarizer.didYouKnow(update));
 		server.verify();
 	}
 }

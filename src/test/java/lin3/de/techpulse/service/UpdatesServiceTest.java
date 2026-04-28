@@ -38,6 +38,11 @@ class UpdatesServiceTest {
 			public String footerInsight(SourceUpdate update) {
 				return "Insight for " + update.title();
 			}
+
+			@Override
+			public String didYouKnow(SourceUpdate update) {
+				return "Did you know for " + update.title();
+			}
 		};
 
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "", 2200, 6);
@@ -46,6 +51,7 @@ class UpdatesServiceTest {
 		assertEquals(1, response.items().size());
 		assertTrue(response.items().get(0).summary().startsWith("Summary for "));
 		assertTrue(response.items().get(0).footerInsight().startsWith("Insight for "));
+		assertTrue(response.items().get(0).didYouKnow().startsWith("Did you know for "));
 		assertFalse(response.fromCache());
 	}
 
@@ -70,6 +76,11 @@ class UpdatesServiceTest {
 			public String footerInsight(SourceUpdate update) {
 				return "Insight for " + update.title();
 			}
+
+			@Override
+			public String didYouKnow(SourceUpdate update) {
+				return "Did you know for " + update.title();
+			}
 		};
 
 		UpdatesService updatesService = new UpdatesService(source, summarizer, 5, false, 300, true, "security,release,ai", "", 2200, 6);
@@ -78,6 +89,7 @@ class UpdatesServiceTest {
 		assertEquals(1, response.items().size());
 		assertEquals("Summary for Release 2.0 launched", response.items().get(0).summary());
 		assertEquals("Insight for Release 2.0 launched", response.items().get(0).footerInsight());
+		assertEquals("Did you know for Release 2.0 launched", response.items().get(0).didYouKnow());
 		assertFalse(response.fromCache());
 	}
 
@@ -134,6 +146,11 @@ class UpdatesServiceTest {
 			@Override
 			public String footerInsight(SourceUpdate update) {
 				return "Insight for " + update.title();
+			}
+
+			@Override
+			public String didYouKnow(SourceUpdate update) {
+				return "Did you know for " + update.title();
 			}
 		};
 	}
@@ -248,6 +265,12 @@ class UpdatesServiceTest {
 			public String footerInsight(SourceUpdate update) {
 				sleep(300);
 				return "Done footer";
+			}
+
+			@Override
+			public String didYouKnow(SourceUpdate update) {
+				sleep(300);
+				return "Done did you know";
 			}
 		};
 

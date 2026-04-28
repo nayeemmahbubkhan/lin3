@@ -9,7 +9,8 @@ public record TechUpdate(
 	Instant publishedAt,
 	String summary,
 	String action,
-	String footerInsight
+	String footerInsight,
+	String didYouKnow
 ) {
 }
 

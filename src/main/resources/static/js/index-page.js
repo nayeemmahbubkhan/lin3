@@ -22,8 +22,20 @@ function escapeHtml(input) {
 		.replace(/'/g, '&#39;');
 }
 
+function normalizeDidYouKnowText(value) {
+	const fallback = 'Interesting context is not ready yet. Check back after refresh.';
+	const text = String(value ?? '').trim();
+	if (!text) {
+		return fallback;
+	}
+	return text
+		.replace(/^did you know\??\s*[:\-]?\s*/i, '')
+		.replace(/^prediction\s*[:\-]?\s*/i, '')
+		.trim() || fallback;
+}
+
 function detectType(item) {
-	const text = `${item.title || ''} ${item.summary || ''} ${item.action || ''} ${item.url || ''}`.toLowerCase();
+	const text = `${item.title || ''} ${item.summary || ''} ${item.action || ''} ${item.didYouKnow || ''} ${item.url || ''}`.toLowerCase();
 	if (/(security|cve|vulnerability|vuln|advisory|exploit|zero-day|xss|csrf|rce|auth bypass|patch)/.test(text)) {
 		return 'security';
 	}
@@ -92,7 +104,7 @@ function renderCard(item, typeKey, typeLabel) {
 		<p class="item-meta">${escapeHtml(item.source)} • ${new Date(item.publishedAt).toLocaleString()}</p>
 		<p class="item-summary">${escapeHtml(item.summary)}</p>
 		<p class="item-action">${escapeHtml(item.action)}</p>
-		<p class="item-footer"><strong>Why this matters:</strong> ${escapeHtml(item.footerInsight || 'Check potential impact on your current priorities.')}</p>
+		<p class="item-did-you-know"><strong>Did you know:</strong> ${escapeHtml(normalizeDidYouKnowText(item.didYouKnow))}</p>
 		<p><a class="link-btn" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Read source</a></p>
 	`;
 	return card;
