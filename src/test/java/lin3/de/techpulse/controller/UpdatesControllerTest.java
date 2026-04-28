@@ -1,6 +1,5 @@
 package lin3.de.techpulse.controller;
 
-import lin3.de.techpulse.config.SecurityConfig;
 import lin3.de.techpulse.model.TechUpdate;
 import lin3.de.techpulse.model.UpdatesRefreshAllResponse;
 import lin3.de.techpulse.model.UpdatesResponse;
@@ -8,8 +7,8 @@ import lin3.de.techpulse.service.UpdatesLimitParser;
 import lin3.de.techpulse.service.UpdatesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UpdatesController.class)
-@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class UpdatesControllerTest {
 
 	@Autowired
