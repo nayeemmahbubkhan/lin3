@@ -27,39 +27,25 @@ Open `http://localhost:8080`.
 
 ## Run local LLM (Ollama via Docker)
 
-1) Start Ollama in Docker (uses existing `ollama` container if present):
+Quick start:
 
 ```bash
-docker ps --format '{{.Names}}' | grep -qx 'ollama' || \
-docker run -d --name ollama -p 11434:11434 ollama/ollama
+docker ps --format '{{.Names}}' | grep -qx 'ollama' || docker run -d --name ollama -p 11434:11434 ollama/ollama
+docker exec ollama ollama pull qwen2.5:0.5b
+./scripts/run-local-llm-profile.sh safe
 ```
 
-2) Pull a lightweight model for local testing (recommended on laptops):
+Profile helper:
 
 ```bash
-docker exec ollama ollama pull llama3.2:1b
+./scripts/run-local-llm-profile.sh safe
+./scripts/run-local-llm-profile.sh balanced
+./scripts/run-local-llm-profile.sh heavy
+./scripts/run-local-llm-profile.sh balanced --model qwen2.5:0.5b
+./scripts/run-local-llm-profile.sh safe --dry-run
 ```
 
-3) Optional: pull the default configured model from `application.properties`:
-
-```bash
-docker exec ollama ollama pull gemma4:latest
-```
-
-4) Verify Ollama is reachable and returns output:
-
-```bash
-curl -s http://localhost:11434/api/tags
-curl -s http://localhost:11434/api/generate -d '{"model":"llama3.2:1b","prompt":"Reply with exactly: ollama-ok","stream":false}'
-```
-
-5) Start the app with local LLM enabled:
-
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--techpulse.llm.enabled=true --techpulse.llm.base-url=http://localhost:11434 --techpulse.llm.model=llama3.2:1b"
-```
-
-6) Validate from app endpoints:
+Validate:
 
 ```bash
 curl -s http://localhost:8080/api/health/meta
@@ -67,7 +53,15 @@ curl -s -X POST "http://localhost:8080/api/updates/refresh-all"
 curl -s "http://localhost:8080/api/updates?limit=5"
 ```
 
-Tip: if `gemma4:latest` fails on low-memory machines, keep using `llama3.2:1b` for local verification.
+Model choice (why Qwen was chosen by default in constrained environments):
+
+- `qwen2.5:0.5b` is significantly lighter and more stable on low-memory hosts.
+- `gemma` variants can produce good quality, but `1b/2b` models generally need more RAM and can cause swap/latency spikes on small instances.
+- If you want to test Gemma locally, follow the complete guide below and keep per-field toggles selective.
+
+Full guide:
+
+- `docs/local-ollama-gemma-qwen.md`
 
 ## Live deployment
 
