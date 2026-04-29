@@ -156,7 +156,7 @@ public class UpdatesService {
 				update,
 				enrichAsync(() -> updatesSummarizer.summarize(update)),
 				enrichAsync(() -> updatesSummarizer.nextAction(update)),
-				enrichAsync(() -> updatesSummarizer.footerInsight(update)),
+				CompletableFuture.completedFuture(updatesSummarizer.footerInsight(update)),
 				enrichAsync(() -> updatesSummarizer.didYouKnow(update))
 			))
 			.toList();
