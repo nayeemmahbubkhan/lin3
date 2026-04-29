@@ -80,6 +80,25 @@ Server-side monitoring (no Google Analytics):
 - Daily/weekly dashboards and alarms are provisioned by `infra/cloudformation/techpulse-single-ec2.yml`.
 - Alerts are sent by SNS email after subscription confirmation.
 
+### Cost guard
+
+- Monthly AWS Budget: `techpulse-monthly-guard` (limit: `35 USD`).
+- Alerts configured at `80% actual`, `100% actual`, and `100% forecast`.
+- Notifications are sent to SNS topic `arn:aws:sns:eu-central-1:649298294157:techpulse-prod-alerts`.
+
+Quick monthly spend snapshot:
+
+```bash
+./scripts/aws-monthly-costs.sh
+```
+
+Create/update budget from CLI (same setup used in this repo):
+
+```bash
+aws budgets describe-budget --account-id 649298294157 --budget-name techpulse-monthly-guard
+aws budgets describe-notifications-for-budget --account-id 649298294157 --budget-name techpulse-monthly-guard
+```
+
 Tech feed endpoint example:
 
 ```bash
