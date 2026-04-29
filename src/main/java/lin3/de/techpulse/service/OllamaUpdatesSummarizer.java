@@ -17,6 +17,8 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 	private final LocalLlmPromptBuilder promptBuilder;
 	private final RuleBasedUpdatesSummarizer fallback;
 	private final boolean enabled;
+	private final boolean summaryEnabled;
+	private final boolean actionEnabled;
 	private final boolean didYouKnowEnabled;
 	private final String model;
 
@@ -25,6 +27,8 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		LocalLlmPromptBuilder promptBuilder,
 		RuleBasedUpdatesSummarizer fallback,
 		@Value("${techpulse.llm.enabled:false}") boolean enabled,
+		@Value("${techpulse.llm.summary.enabled:false}") boolean summaryEnabled,
+		@Value("${techpulse.llm.action.enabled:false}") boolean actionEnabled,
 		@Value("${techpulse.llm.did-you-know.enabled:false}") boolean didYouKnowEnabled,
 		@Value("${techpulse.llm.base-url:http://localhost:11434}") String baseUrl,
 		@Value("${techpulse.llm.model:gemma4:latest}") String model
@@ -33,13 +37,15 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		this.promptBuilder = promptBuilder;
 		this.fallback = fallback;
 		this.enabled = enabled;
+		this.summaryEnabled = summaryEnabled;
+		this.actionEnabled = actionEnabled;
 		this.didYouKnowEnabled = didYouKnowEnabled;
 		this.model = model;
 	}
 
 	@Override
 	public String summarize(SourceUpdate update) {
-		if (!enabled) {
+		if (!enabled || !summaryEnabled) {
 			return fallback.summarize(update);
 		}
 		try {
@@ -52,7 +58,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 
 	@Override
 	public String nextAction(SourceUpdate update) {
-		if (!enabled) {
+		if (!enabled || !actionEnabled) {
 			return fallback.nextAction(update);
 		}
 		try {

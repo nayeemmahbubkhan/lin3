@@ -34,6 +34,8 @@ class OllamaUpdatesSummarizerTest {
 			fallback,
 			false,
 			false,
+			false,
+			false,
 			"http://localhost:11434",
 			"gemma4:latest"
 		);
@@ -65,6 +67,8 @@ class OllamaUpdatesSummarizerTest {
 			builder,
 			promptBuilder,
 			fallback,
+			true,
+			true,
 			true,
 			true,
 			"http://localhost:11434",
@@ -101,6 +105,8 @@ class OllamaUpdatesSummarizerTest {
 			fallback,
 			true,
 			true,
+			true,
+			true,
 			"http://localhost:11434",
 			"gemma4:latest"
 		);
@@ -131,6 +137,8 @@ class OllamaUpdatesSummarizerTest {
 			promptBuilder,
 			fallback,
 			true,
+			true,
+			true,
 			false,
 			"http://localhost:11434",
 			"gemma4:latest"
@@ -139,6 +147,62 @@ class OllamaUpdatesSummarizerTest {
 		assertEquals("LLM summary", summarizer.summarize(update));
 		assertEquals("LLM action", summarizer.nextAction(update));
 		assertEquals(fallback.didYouKnow(update), summarizer.didYouKnow(update));
+		server.verify();
+	}
+
+	@Test
+	void usesFallbackForSummaryWhenToggleDisabled() {
+		LocalLlmPromptBuilder promptBuilder = new LocalLlmPromptBuilder();
+		RuleBasedUpdatesSummarizer fallback = new RuleBasedUpdatesSummarizer(promptBuilder);
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess("{\"response\":\"LLM action\"}", MediaType.APPLICATION_JSON));
+
+		OllamaUpdatesSummarizer summarizer = new OllamaUpdatesSummarizer(
+			builder,
+			promptBuilder,
+			fallback,
+			true,
+			false,
+			true,
+			false,
+			"http://localhost:11434",
+			"gemma4:latest"
+		);
+
+		assertEquals(fallback.summarize(update), summarizer.summarize(update));
+		assertEquals("LLM action", summarizer.nextAction(update));
+		server.verify();
+	}
+
+	@Test
+	void usesFallbackForActionWhenToggleDisabled() {
+		LocalLlmPromptBuilder promptBuilder = new LocalLlmPromptBuilder();
+		RuleBasedUpdatesSummarizer fallback = new RuleBasedUpdatesSummarizer(promptBuilder);
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess("{\"response\":\"LLM summary\"}", MediaType.APPLICATION_JSON));
+
+		OllamaUpdatesSummarizer summarizer = new OllamaUpdatesSummarizer(
+			builder,
+			promptBuilder,
+			fallback,
+			true,
+			true,
+			false,
+			false,
+			"http://localhost:11434",
+			"gemma4:latest"
+		);
+
+		assertEquals("LLM summary", summarizer.summarize(update));
+		assertEquals(fallback.nextAction(update), summarizer.nextAction(update));
 		server.verify();
 	}
 }
