@@ -62,15 +62,8 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 
 	@Override
 	public String footerInsight(SourceUpdate update) {
-		if (!enabled) {
-			return fallback.footerInsight(update);
-		}
-		try {
-			String generated = generate(promptBuilder.buildFooterInsightPrompt(update));
-			return generated.isBlank() ? fallback.footerInsight(update) : generated;
-		} catch (Exception ex) {
-			return fallback.footerInsight(update);
-		}
+		// Footer text is not rendered in the current UI; avoid spending an LLM call per item.
+		return fallback.footerInsight(update);
 	}
 
 	@Override
@@ -107,4 +100,3 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		return value instanceof String text ? text.trim() : "";
 	}
 }
-
