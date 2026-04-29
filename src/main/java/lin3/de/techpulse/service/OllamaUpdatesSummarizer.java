@@ -17,6 +17,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 	private final LocalLlmPromptBuilder promptBuilder;
 	private final RuleBasedUpdatesSummarizer fallback;
 	private final boolean enabled;
+	private final boolean didYouKnowEnabled;
 	private final String model;
 
 	public OllamaUpdatesSummarizer(
@@ -24,6 +25,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		LocalLlmPromptBuilder promptBuilder,
 		RuleBasedUpdatesSummarizer fallback,
 		@Value("${techpulse.llm.enabled:false}") boolean enabled,
+		@Value("${techpulse.llm.did-you-know.enabled:false}") boolean didYouKnowEnabled,
 		@Value("${techpulse.llm.base-url:http://localhost:11434}") String baseUrl,
 		@Value("${techpulse.llm.model:gemma4:latest}") String model
 	) {
@@ -31,6 +33,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 		this.promptBuilder = promptBuilder;
 		this.fallback = fallback;
 		this.enabled = enabled;
+		this.didYouKnowEnabled = didYouKnowEnabled;
 		this.model = model;
 	}
 
@@ -68,7 +71,7 @@ public class OllamaUpdatesSummarizer implements UpdatesSummarizer {
 
 	@Override
 	public String didYouKnow(SourceUpdate update) {
-		if (!enabled) {
+		if (!enabled || !didYouKnowEnabled) {
 			return fallback.didYouKnow(update);
 		}
 		try {

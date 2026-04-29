@@ -33,6 +33,7 @@ class OllamaUpdatesSummarizerTest {
 			promptBuilder,
 			fallback,
 			false,
+			false,
 			"http://localhost:11434",
 			"gemma4:latest"
 		);
@@ -64,6 +65,7 @@ class OllamaUpdatesSummarizerTest {
 			builder,
 			promptBuilder,
 			fallback,
+			true,
 			true,
 			"http://localhost:11434",
 			"gemma4:latest"
@@ -98,6 +100,7 @@ class OllamaUpdatesSummarizerTest {
 			promptBuilder,
 			fallback,
 			true,
+			true,
 			"http://localhost:11434",
 			"gemma4:latest"
 		);
@@ -105,6 +108,36 @@ class OllamaUpdatesSummarizerTest {
 		assertEquals(fallback.summarize(update), summarizer.summarize(update));
 		assertEquals(fallback.nextAction(update), summarizer.nextAction(update));
 		assertEquals(fallback.footerInsight(update), summarizer.footerInsight(update));
+		assertEquals(fallback.didYouKnow(update), summarizer.didYouKnow(update));
+		server.verify();
+	}
+
+	@Test
+	void usesFallbackForDidYouKnowWhenToggleDisabled() {
+		LocalLlmPromptBuilder promptBuilder = new LocalLlmPromptBuilder();
+		RuleBasedUpdatesSummarizer fallback = new RuleBasedUpdatesSummarizer(promptBuilder);
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess("{\"response\":\"LLM summary\"}", MediaType.APPLICATION_JSON));
+		server.expect(requestTo("http://localhost:11434/api/generate"))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess("{\"response\":\"LLM action\"}", MediaType.APPLICATION_JSON));
+
+		OllamaUpdatesSummarizer summarizer = new OllamaUpdatesSummarizer(
+			builder,
+			promptBuilder,
+			fallback,
+			true,
+			false,
+			"http://localhost:11434",
+			"gemma4:latest"
+		);
+
+		assertEquals("LLM summary", summarizer.summarize(update));
+		assertEquals("LLM action", summarizer.nextAction(update));
 		assertEquals(fallback.didYouKnow(update), summarizer.didYouKnow(update));
 		server.verify();
 	}
